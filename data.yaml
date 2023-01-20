@@ -2208,12 +2208,12 @@ components:
           description: Indicates whether the product is specifically tailored to a circumstance.  In this case fees and prices are significantly negotiated depending on context. While all products are open to a degree of tailoring this flag indicates that tailoring is expected and thus that the provision of specific fees and rates is not applicable
           example: true
         additionalInformation:
-          $ref: '#/components/schemas/BankingProductV3_additionalInformation'
+          $ref: '#/components/schemas/BankingProduct_additionalInformation'
         cardArt:
           type: array
           description: An array of card art images
           items:
-            $ref: '#/components/schemas/BankingProductV3_cardArt'
+            $ref: '#/components/schemas/BankingProduct_cardArt'
     BankingProductConstraint:
       type: object
       required:
@@ -2280,7 +2280,8 @@ components:
       x-conditional:
         - additionalValue
         - additionalInfo
-    BankingProductV3_additionalInformation:
+    BankingProduct_additionalInformation:
+      description: Object that contains links to additional information on specific topics
       properties:
         overviewUri:
           type: string
@@ -2302,8 +2303,43 @@ components:
           type: string
           description: Description of a bundle that this product can be part of
           example: https://bundle.example.com.au
-      description: Object that contains links to additional information on specific topics
-    BankingProductV3_cardArt:
+        additionalOverviewUris:
+          type: array
+          description: An array of additional general overviews for the product or features of the product, if applicable. To be treated as secondary documents to the `overviewUri`. Only to be used if there is a primary `overviewUri`.
+          items:
+            $ref: '#/components/schemas/BankingProductAdditionalInformation_additionalInformationUris'
+        additionalTermsUris:
+          type: array
+          description: An array of additional terms and conditions for the product, if applicable. To be treated as secondary documents to the `termsUri`. Only to be used if there is a primary `termsUri`.
+          items:
+            $ref: '#/components/schemas/BankingProductAdditionalInformation_additionalInformationUris'
+        additionalEligibilityUris:
+          type: array
+          description: An array of additional eligibility rules and criteria for the product, if applicable. To be treated as secondary documents to the `eligibilityUri`. Only to be used if there is a primary `eligibilityUri`.
+          items:
+            $ref: '#/components/schemas/BankingProductAdditionalInformation_additionalInformationUris'
+        additionalFeesAndPricingUris:
+          type: array
+          description: An array of additional fees, pricing, discounts, exemptions and bonuses for the product, if applicable. To be treated as secondary documents to the `feesAndPricingUri`. Only to be used if there is a primary `feesAndPricingUri`.
+          items:
+            $ref: '#/components/schemas/BankingProductAdditionalInformation_additionalInformationUris'
+        additionalBundleUris:
+          type: array
+          description: An array of additional bundles for the product, if applicable. To be treated as secondary documents to the `bundleUri`. Only to be used if there is a primary `bundleUri`.
+          items:
+            $ref: '#/components/schemas/BankingProductAdditionalInformation_additionalInformationUris'
+    BankingProductAdditionalInformation_additionalInformationUris:
+      required:
+        - additionalInfoUri
+      type: object
+      properties:
+        description:
+          type: string
+          description: Display text providing more information about the document URI
+        additionalInfoUri:
+          type: string
+          description: The URI describing the additional information
+    BankingProduct_cardArt:
       required:
         - imageUri
       properties:
