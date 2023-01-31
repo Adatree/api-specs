@@ -1168,7 +1168,7 @@ components:
           schema:
             $ref: '#/components/schemas/ResponseErrorList'
     409Conflict:
-      description: Request cannot be processed because of consent status
+      description: Request cannot be processed
       content:
         application/json:
           schema:
