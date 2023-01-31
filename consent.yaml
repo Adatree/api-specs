@@ -369,6 +369,8 @@ paths:
           $ref: '#/components/responses/403Forbidden'
         404:
           $ref: '#/components/responses/404NotFound'
+        409:
+          $ref: '#/components/responses/409Conflict'
         429:
           $ref: '#/components/responses/429RateLimited'
   /consents/events:
@@ -1161,6 +1163,12 @@ components:
       description: The specified resource was not found.
     400BadRequest:
       description: Request is invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponseErrorList'
+    409Conflict:
+      description: Request cannot be processed because of consent status
       content:
         application/json:
           schema:
