@@ -373,62 +373,6 @@ paths:
           $ref: '#/components/responses/409Conflict'
         429:
           $ref: '#/components/responses/429RateLimited'
-  /consents/events:
-    get:
-      security:
-        - m2m: ['consents:read']
-      tags:
-        - Get consent events
-      summary: Retrieve consent events
-      operationId: getConsentEvents
-      parameters:
-        - name: oldest
-          description: Constrain the consent event result list with timestamp at or after this date/time. Format is aligned to DateTimeString common type
-          in: query
-          required: false
-          schema:
-            type: string
-            format: date-time
-            x-cds-type: DateTimeString
-            example: "2022-02-06T08:17:26Z"
-        - name: newest
-          description: Constrain the consent event result list with timestamp at or before this date/time. Format is aligned to DateTimeString common type
-          in: query
-          required: false
-          schema:
-            type: string
-            format: date-time
-            x-cds-type: DateTimeString
-            example: "2022-02-01T15:43:00.121Z"
-        - $ref: '#/components/parameters/ParamPage'
-        - $ref: '#/components/parameters/ParamPageSize'
-      callbacks:
-        ConsentUpdated:
-          $YourWebhookUrl:
-            post:
-              requestBody:
-                content:
-                  application/json:
-                    schema:
-                      $ref: '#/components/schemas/ConsentEvent'
-              responses:
-                '200':
-                  description: Your server returns this code if it accepts the callback
-      responses:
-        200:
-          description: list of ConsentEvent with pagination
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConsentEventList'
-        400:
-          $ref: '#/components/responses/400BadRequest'
-        401:
-          $ref: '#/components/responses/401Unauthorised'
-        403:
-          $ref: '#/components/responses/403Forbidden'
-        429:
-          $ref: '#/components/responses/429RateLimited'
   /software-products/{softwareProductId}/data-holders:
     get:
       summary: Get Data Holders
