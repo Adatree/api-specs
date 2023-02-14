@@ -376,6 +376,7 @@ paths:
   /consents/events:
     get:
       security:
+        - bearerAuth: [ 'consumer:consents:read', 'consents:read' ]
         - m2m: ['consents:read']
       tags:
         - Get consent events
