@@ -923,6 +923,15 @@ components:
           example: true
           description: Flag indicating that the customer associated with the authorisation is an owner of the account. Does not indicate sole ownership, however. If not present then 'true' is assumed
           default: true
+        accountOwnership:
+          type: string
+          description: Value indicating the number of customers that have ownership of the account, according to the data holder's definition of account ownership. Does not indicate that all account owners are eligible consumers
+          enum:
+            - UNKNOWN
+            - ONE_PARTY
+            - TWO_PARTY
+            - MANY_PARTY
+            - OTHER
         maskedNumber:
           type: string
           example: "xxx-xxx xxxxx1234"
@@ -2067,6 +2076,7 @@ components:
             wallet
           enum:
             - BILLER
+            - DIGITAL_WALLET
             - DOMESTIC
             - INTERNATIONAL
           type: string
@@ -2208,12 +2218,12 @@ components:
           description: Indicates whether the product is specifically tailored to a circumstance.  In this case fees and prices are significantly negotiated depending on context. While all products are open to a degree of tailoring this flag indicates that tailoring is expected and thus that the provision of specific fees and rates is not applicable
           example: true
         additionalInformation:
-          $ref: '#/components/schemas/BankingProduct_additionalInformation'
+          $ref: '#/components/schemas/BankingProductV3_additionalInformation'
         cardArt:
           type: array
           description: An array of card art images
           items:
-            $ref: '#/components/schemas/BankingProduct_cardArt'
+            $ref: '#/components/schemas/BankingProductV3_cardArt'
     BankingProductConstraint:
       type: object
       required:
@@ -2280,8 +2290,7 @@ components:
       x-conditional:
         - additionalValue
         - additionalInfo
-    BankingProduct_additionalInformation:
-      description: Object that contains links to additional information on specific topics
+    BankingProductV3_additionalInformation:
       properties:
         overviewUri:
           type: string
@@ -2307,28 +2316,29 @@ components:
           type: array
           description: An array of additional general overviews for the product or features of the product, if applicable. To be treated as secondary documents to the `overviewUri`. Only to be used if there is a primary `overviewUri`.
           items:
-            $ref: '#/components/schemas/BankingProductAdditionalInformation_additionalInformationUris'
+            $ref: '#/components/schemas/BankingProductAdditionalInformationV2_additionalInformationUris'
         additionalTermsUris:
           type: array
           description: An array of additional terms and conditions for the product, if applicable. To be treated as secondary documents to the `termsUri`. Only to be used if there is a primary `termsUri`.
           items:
-            $ref: '#/components/schemas/BankingProductAdditionalInformation_additionalInformationUris'
+            $ref: '#/components/schemas/BankingProductAdditionalInformationV2_additionalInformationUris'
         additionalEligibilityUris:
           type: array
           description: An array of additional eligibility rules and criteria for the product, if applicable. To be treated as secondary documents to the `eligibilityUri`. Only to be used if there is a primary `eligibilityUri`.
           items:
-            $ref: '#/components/schemas/BankingProductAdditionalInformation_additionalInformationUris'
+            $ref: '#/components/schemas/BankingProductAdditionalInformationV2_additionalInformationUris'
         additionalFeesAndPricingUris:
           type: array
           description: An array of additional fees, pricing, discounts, exemptions and bonuses for the product, if applicable. To be treated as secondary documents to the `feesAndPricingUri`. Only to be used if there is a primary `feesAndPricingUri`.
           items:
-            $ref: '#/components/schemas/BankingProductAdditionalInformation_additionalInformationUris'
+            $ref: '#/components/schemas/BankingProductAdditionalInformationV2_additionalInformationUris'
         additionalBundleUris:
           type: array
           description: An array of additional bundles for the product, if applicable. To be treated as secondary documents to the `bundleUri`. Only to be used if there is a primary `bundleUri`.
           items:
-            $ref: '#/components/schemas/BankingProductAdditionalInformation_additionalInformationUris'
-    BankingProductAdditionalInformation_additionalInformationUris:
+            $ref: '#/components/schemas/BankingProductAdditionalInformationV2_additionalInformationUris'
+      description: Object that contains links to additional information on specific topics
+    BankingProductAdditionalInformationV2_additionalInformationUris:
       required:
         - additionalInfoUri
       type: object
@@ -2339,7 +2349,8 @@ components:
         additionalInfoUri:
           type: string
           description: The URI describing the additional information
-    BankingProduct_cardArt:
+          x-cds-type: URIString
+    BankingProductV3_cardArt:
       required:
         - imageUri
       properties:
@@ -2365,11 +2376,14 @@ components:
           description: Type of object included that describes the payee in detail
           enum:
             - biller
+            - digitalWallet
             - domestic
             - international
           type: string
         biller:
           $ref: '#/components/schemas/BankingBillerPayee'
+        digitalWallet:
+          $ref: '#/components/schemas/BankingDigitalWalletPayee'
         domestic:
           $ref: '#/components/schemas/BankingDomesticPayee'
         international:
@@ -2408,6 +2422,33 @@ components:
       type: object
       x-conditional:
         - crn
+    BankingDigitalWalletPayee:
+      required:
+        - identifier
+        - name
+        - provider
+        - type
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name assigned to the digital wallet by the owner of the wallet, else the display name provided by the digital wallet provider
+        identifier:
+          type: string
+          description: The identifier of the digital wallet (dependent on type)
+        type:
+          type: string
+          description: The type of the digital wallet identifier
+          enum:
+            - EMAIL
+            - CONTACT_NAME
+            - TELEPHONE
+        provider:
+          type: string
+          description: The provider of the digital wallet
+          enum:
+            - PAYPAL_AU
+            - OTHER
     BankingInternationalPayee:
       example:
         bankDetails:
@@ -2728,6 +2769,15 @@ components:
           type: string
           example: 233211
           description: Value is a valid [ANZSCO](http://www.abs.gov.au/ANZSCO) Standard Occupation classification code. If the occupation code held by the data holder is not one of the supported [ANZSCO](http://www.abs.gov.au/ANZSCO) versions, then it must not be supplied.
+        occupationCodeVersion:
+          type: string
+          description: The applicable **[[ANZSCO]](#iref-ANZSCO)** release version of the occupation code provided. Mandatory if an ``occupationCode`` is supplied. If ``occupationCode`` is supplied but ``occupationCodeVersion`` is absent, default is ``ANZSCO_1220.0_2013_V1.2``
+          default: ANZSCO_1220.0_2013_V1.2
+          enum:
+            - ANZSCO_1220.0_2006_V1.0
+            - ANZSCO_1220.0_2006_V1.1
+            - ANZSCO_1220.0_2013_V1.2
+            - ANZSCO_1220.0_2013_V1.3
     CommonPersonDetail:
       allOf:
         - $ref: '#/components/schemas/CommonPerson'
@@ -2804,6 +2854,13 @@ components:
           type: string
           example: MINING
           description: A valid [ANZSIC](http://www.abs.gov.au/ANZSIC) code for the organisation. If the industry code held by the data holder is not one of the supported [ANZSIC](http://www.abs.gov.au/ANZSIC) versions, then it must not be supplied.
+        industryCodeVersion:
+          type: string
+          description: The applicable [ANZSIC](http://www.abs.gov.au/ANZSIC) release version of the industry code provided. Should only be supplied if ``industryCode`` is also supplied. If ``industryCode`` is supplied but ``industryCodeVersion`` is absent, default is ``ANZSIC_1292.0_2006_V2.0``
+          default: ANZSIC_1292.0_2006_V2.0
+          enum:
+            - ANZSIC_1292.0_2006_V1.0
+            - ANZSIC_1292.0_2006_V2.0
         organisationType:
           type: string
           example: COMPANY
