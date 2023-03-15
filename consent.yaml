@@ -701,6 +701,9 @@ components:
           example: auth0%7c5fbc585628421a006e83d95d
         grantee:
           $ref: '#/components/schemas/Grantee'
+        customData:
+          type: object
+          example: { "employerName": "Adatree" }
     ConsentAuthorization:
       type: object
       description: Authorization link for a Consent
@@ -785,6 +788,9 @@ components:
           $ref: '#/components/schemas/ConsentGrantee'
         serviceProvider:
           $ref: '#/components/schemas/ServiceProvider'
+        customData:
+          type: object
+          example: { "employerName": "Adatree" }
     ConsentScopeResponse:
       type: object
       properties:
@@ -875,6 +881,8 @@ components:
           example: "consumer@example.com"
         grantee:
           $ref: '#/components/schemas/ConsentGrantee'
+        customData:
+          type: object
     LinksPaginated:
       type: object
       required:
