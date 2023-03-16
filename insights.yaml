@@ -1,0 +1,559 @@
+openapi: 3.0.1
+info:
+  title: Adatree Insights API
+  description: |-
+    Adatree's catalogue of Insights based on CDR Data
+  contact:
+    name: Adatree Pty Ltd
+    url: https://adatree.com.au
+    email: engineering@adatree.com.au
+  version: "1.0.0"
+servers:
+  - url: https://adatree-prod.adatree.com.au
+paths:
+  /insights/banking/account:
+    get:
+      security:
+        - bearerAuth: [ 'insights:banking:account' ]
+      tags:
+        - Banking
+      summary: Get Account Insights
+      description: |-
+        Obtain a list of Bank Account Insights
+      operationId: getBankingAccounts
+      parameters:
+        - $ref: '#/components/parameters/QueryUseCaseIds'
+        - $ref: '#/components/parameters/QueryCdrArrangementIds'
+        - $ref: '#/components/parameters/QueryConsentIds'
+        - $ref: '#/components/parameters/QueryConsumerIds'
+        - $ref: '#/components/parameters/QueryDataHolderBrandIds'
+        - $ref: '#/components/parameters/QueryPage'
+        - $ref: '#/components/parameters/QueryPageSize'
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/BankAccountInsightList'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        401:
+          $ref: '#/components/responses/401Unauthorised'
+        403:
+          $ref: '#/components/responses/403Forbidden'
+        429:
+          $ref: '#/components/responses/429RateLimited'
+  /insights/energy/account:
+    get:
+      security:
+        - bearerAuth: [ 'insights:energy:account' ]
+      tags:
+        - Energy
+      summary: Get Account Insights
+      description: |-
+        Obtain a list of Energy Account Insights
+      operationId: getEnergyAccounts
+      parameters:
+        - $ref: '#/components/parameters/QueryUseCaseIds'
+        - $ref: '#/components/parameters/QueryCdrArrangementIds'
+        - $ref: '#/components/parameters/QueryConsentIds'
+        - $ref: '#/components/parameters/QueryConsumerIds'
+        - $ref: '#/components/parameters/QueryDataHolderBrandIds'
+        - $ref: '#/components/parameters/QueryPage'
+        - $ref: '#/components/parameters/QueryPageSize'
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/EnergyAccountInsightList'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        401:
+          $ref: '#/components/responses/401Unauthorised'
+        403:
+          $ref: '#/components/responses/403Forbidden'
+        429:
+          $ref: '#/components/responses/429RateLimited'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    BankAccountInsightList:
+      type: object
+      required:
+        - data
+        - errors
+        - links
+        - meta
+      properties:
+        data:
+          $ref: '#/components/schemas/BankAccountInsightsList_data'
+        links:
+          $ref: '#/components/schemas/LinksPaginated'
+        meta:
+          $ref: '#/components/schemas/MetaPaginated'
+    BankAccountInsightsList_data:
+      required:
+        - insights
+      properties:
+        insights:
+          type: array
+          description: The list of insights returned. If the filter results in an empty set then this array may have no records
+          items:
+            $ref: '#/components/schemas/BankAccountInsight'
+    BankAccountInsight:
+      type: object
+      required:
+        - displayName
+        - bsb
+        - accountNumber
+        - balance
+      properties:
+        bsb:
+          type: string
+          example: 062000
+          description: The unmasked BSB for the account. Is expected to be formatted as digits only with leading zeros included and no punctuation or spaces
+        accountNumber:
+          example: 12345678
+          type: string
+          description: The unmasked account number for the account. Should not be supplied if the account number is a PAN requiring PCI compliance. Is expected to be formatted as digits only with leading zeros included and no punctuation or spaces
+        balance:
+          type: string
+          example: "10000.00"
+          description: Balance representing the amount of funds available for transfer. Assumed to be zero or positive
+        addresses:
+          type: array
+          description: The addresses for the account to be used for correspondence
+          items:
+            $ref: '#/components/schemas/CommonPhysicalAddress'
+        adatree:
+          $ref: '#/components/schemas/Adatree'
+    EnergyAccountInsightList:
+      type: object
+      required:
+        - data
+        - errors
+        - links
+        - meta
+      properties:
+        data:
+          $ref: '#/components/schemas/EnergyAccountInsightList_data'
+        links:
+          $ref: '#/components/schemas/LinksPaginated'
+        meta:
+          $ref: '#/components/schemas/MetaPaginated'
+    EnergyAccountInsightList_data:
+      required:
+        - insights
+      properties:
+        insights:
+          type: array
+          description: The list of insights returned. If the filter results in an empty set then this array may have no records
+          items:
+            $ref: '#/components/schemas/EnergyAccountInsight'
+    EnergyAccountInsight:
+      type: object
+      required:
+        - accountNumber
+        - displayName
+        - balance
+      properties:
+        displayName:
+          type: string
+          example: savings
+          description: The display name of the account as defined by the bank. This should not incorporate account numbers or PANs. If it does the values should be masked according to the rules of the MaskedAccountString common type.
+        accountNumber:
+          example: 12345678
+          type: string
+          description: The unmasked account number for the account. Should not be supplied if the account number is a PAN requiring PCI compliance. Is expected to be formatted as digits only with leading zeros included and no punctuation or spaces
+        balance:
+          type: string
+          example: "10000.00"
+          description: Balance representing the amount of funds available for transfer. Assumed to be zero or positive
+        addresses:
+          type: array
+          description: The addresses for the account to be used for correspondence
+          items:
+            $ref: '#/components/schemas/CommonPhysicalAddress'
+        adatree:
+          $ref: '#/components/schemas/Adatree'
+    CommonPhysicalAddress:
+      type: object
+      required:
+        - addressUType
+      properties:
+        addressUType:
+          type: string
+          description: The type of address object present
+          example: simple
+          enum:
+            - simple
+            - paf
+        simple:
+          $ref: '#/components/schemas/CommonSimpleAddress'
+        paf:
+          $ref: '#/components/schemas/CommonPAFAddress'
+    CommonPAFAddress:
+      type: object
+      required:
+        - localityName
+        - postcode
+        - state
+      properties:
+        dpid:
+          type: string
+          description: Unique identifier for an address as defined by Australia Post.  Also known as Delivery Point Identifier
+          example: 17160
+        thoroughfareNumber1:
+          type: integer
+          description: Thoroughfare number for a property (first number in a property ranged address)
+          example: 16
+        thoroughfareNumber1Suffix:
+          type: string
+          description: Suffix for the thoroughfare number. Only relevant is thoroughfareNumber1 is populated
+          example: ""
+        thoroughfareNumber2:
+          type: integer
+          description: Second thoroughfare number (only used if the property has a ranged address eg 23-25)
+          example: 19
+        thoroughfareNumber2Suffix:
+          type: string
+          description: Suffix for the second thoroughfare number. Only relevant is thoroughfareNumber2 is populated
+          example: ""
+        flatUnitType:
+          type: string
+          description: Type of flat or unit for the address
+          example: unit
+        flatUnitNumber:
+          type: string
+          description: Unit number (including suffix, if applicable)
+          example: 10
+        floorLevelType:
+          type: string
+          description: Type of floor or level for the address
+          example: level
+        floorLevelNumber:
+          type: string
+          description: Floor or level number (including alpha characters)
+          example: 3
+        lotNumber:
+          type: string
+          description: Allotment number for the address
+          example: 10
+        buildingName1:
+          type: string
+          description: Building/Property name 1
+          example: summer
+        buildingName2:
+          type: string
+          description: Building/Property name 2
+          example: ""
+        streetName:
+          type: string
+          description: The name of the street
+          example: Long
+        streetType:
+          type: string
+          description: The street type. Valid enumeration defined by Australia Post PAF code file
+          example: ST
+        streetSuffix:
+          type: string
+          description: The street type suffix. Valid enumeration defined by Australia Post PAF code file
+        postalDeliveryType:
+          type: string
+          description: Postal delivery type. (eg. PO BOX). Valid enumeration defined by Australia Post PAF code file
+          example: PO BOX
+        postalDeliveryNumber:
+          type: integer
+          description: Postal delivery number if the address is a postal delivery type
+          example: 15
+        postalDeliveryNumberPrefix:
+          type: string
+          description: Postal delivery number prefix related to the postal delivery number
+          example: ""
+        postalDeliveryNumberSuffix:
+          type: string
+          description: Postal delivery number suffix related to the postal delivery number
+          example: ""
+        localityName:
+          type: string
+          description: Full name of locality
+          example: "Sydney"
+        postcode:
+          type: string
+          description: Postcode for the locality
+          example: 2000
+        state:
+          type: string
+          description: State in which the address belongs. Valid enumeration defined by Australia Post PAF code file [State Type Abbreviation](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf). NSW, QLD, VIC, NT, WA, SA, TAS, ACT, AAT
+          example: NSW
+      description: Australian address formatted according to the file format defined by the [PAF file format](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf)
+    CommonSimpleAddress:
+      type: object
+      required:
+        - addressLine1
+        - city
+        - state
+      properties:
+        mailingName:
+          type: string
+          description: Name of the individual or business formatted for inclusion in an address used for physical mail
+          example: John Doe
+        addressLine1:
+          type: string
+          description: First line of the standard address object
+          example: 1 Pitt ST
+        addressLine2:
+          type: string
+          description: Second line of the standard address object
+          example: ""
+        addressLine3:
+          type: string
+          description: Third line of the standard address object
+          example: ""
+        postcode:
+          type: string
+          description: Mandatory for Australian addresses
+          example: 2000
+        city:
+          type: string
+          description: Name of the city or locality
+          example: SYDNEY
+        state:
+          type: string
+          description: Free text if the country is not Australia. If country is Australia then must be one of the values defined by the [State Type Abbreviation](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf) in the PAF file format. NSW, QLD, VIC, NT, WA, SA, TAS, ACT, AAT
+          example: NSW
+        country:
+          type: string
+          description: A valid [ISO 3166 Alpha-3](https://www.iso.org/iso-3166-country-codes.html) country code. Australia (AUS) is assumed if country is not present.
+          example: AUS
+          default: AUS
+      x-conditional:
+        - postcode
+    LinksPaginated:
+      type: object
+      required:
+        - self
+      properties:
+        self:
+          type: string
+          description: Fully qualified link that generated the current response document.
+            https://self.example.com.au will be converted to https://self.example.com.au?page=1&page-size=25
+          example: https://self.example.com.au?page=3&page-size=25
+        first:
+          type: string
+          description: URI to the first page of this set. Mandatory if this response is not the first page
+          example: https://self.example.com.au?page=1&page-size=25
+        prev:
+          type: string
+          description: URI to the previous page of this set. Mandatory if this response is not the first page
+          example: https://self.example.com.au?page=2&page-size=25
+        next:
+          type: string
+          description: URI to the next page of this set. Mandatory if this response is not the last page
+          example: https://self.example.com.au?page=4&page-size=25
+        last:
+          type: string
+          description: URI to the last page of this set. Mandatory if this response is not the last page
+          example: https://self.example.com.au?page=15&page-size=25
+      x-conditional:
+        - prev
+        - next
+        - first
+        - last
+    MetaPaginated:
+      type: object
+      required:
+        - totalPages
+        - totalRecords
+      properties:
+        totalRecords:
+          type: integer
+          description: The total number of records in the full set. See [pagination](#pagination).
+          example: 581
+        totalPages:
+          type: integer
+          description: The total number of pages in the full set. See [pagination](#pagination).
+          example: 24
+    ErrorList:
+      type: object
+      required:
+        - errors
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorList_errors'
+    ErrorList_errors:
+      properties:
+        code:
+          description: The code of the error encountered. Where the error is specific
+            to the respondent, an application-specific error code, expressed as a
+            string value. If the error is application-specific, the URN code that
+            the specific error extends must be provided in the meta object. Otherwise,
+            the value is the error code URN.
+          type: string
+        title:
+          description: A short, human-readable summary of the problem that MUST NOT
+            change from occurrence to occurrence of the problem represented by the
+            error code.
+          type: string
+        detail:
+          description: A human-readable explanation specific to this occurrence of
+            the problem.
+          type: string
+        meta:
+          $ref: '#/components/schemas/ErrorList_meta'
+      required:
+        - code
+        - detail
+        - title
+      type: object
+    ErrorList_meta:
+      description: Additional data for customised error codes
+      properties:
+        urn:
+          description: The CDR error code URN which the application-specific error
+            code extends. Mandatory if the error `code` is an application-specific
+            error rather than a standardised error code.
+          type: string
+      type: object
+      x-conditional:
+        - urn
+    Adatree:
+      description: Extra data and metadata provided by Adatree
+      required:
+        - consentId
+        - consumerId
+        - cdrArrangementId
+        - dataHolderBrandId
+        - useCaseId
+      properties:
+        consentId:
+          type: string
+          example: 55b3299a-3e50-48a2-a190-cca263ccaba5
+          description: Consent Id for related resource
+        consumerId:
+          type: string
+          example: 55b3299a-3e50-48a2-a190-cca263ccaba5
+          description: Consumer Id for related resource
+        cdrArrangementId:
+          type: string
+          example: f111111-d7c8-4679-a165-aa406cd62b13
+          description: CDR Arrangement for related resource
+        dataHolderBrandId:
+          type: string
+          example: 55b3299a-3e50-48a2-a190-cca263ccaba5
+          description: Data Holder Brand Id for related resource
+        useCaseId:
+          type: string
+          example: HOME_LOAN
+          description: Use Case Id for related resource
+
+
+  #-------------------------------
+  # Reusable parameters
+  #-------------------------------
+  parameters:
+    #-------------------------------
+    # Query parameters
+    #-------------------------------
+    QueryPage:
+      name: page
+      in: query
+      description: Page of results to request (standard pagination)
+      schema:
+        type: integer
+        format: int32
+        default: 1
+        minimum: 1
+        example: 1
+    QueryPageSize:
+      name: pageSize
+      in: query
+      description: Page size to request
+      schema:
+        type: integer
+        minimum: 1
+        example: 25
+    QueryUseCaseIds:
+      name: useCaseIds
+      in: query
+      description: Used to filter results on the useCaseId field.
+      schema:
+        type: array
+        items:
+          type: string
+          description: Array of specific UseCaseIds to obtain data for
+          example: HOME_LOAN
+    QueryCdrArrangementIds:
+      name: cdrArrangementIds
+      in: query
+      description: Used to filter results on the cdrArrangementId field.
+      schema:
+        type: array
+        items:
+          type: string
+          description: Array of specific cdrArrangementIds to obtain data for
+          example: 30370f1b-cd27-4d56-b56d-beb49fc9aa48
+    QueryConsentIds:
+      name: consentIds
+      in: query
+      description: Used to filter results on the consentId field.
+      schema:
+        type: array
+        items:
+          type: string
+          description: Array of specific consentIds to obtain data for
+          example: 30370f1b-cd27-4d56-b56d-beb49fc9aa48
+    QueryConsumerIds:
+      name: consumerIds
+      in: query
+      description: Used to filter results on the consumerId field.
+      schema:
+        type: array
+        items:
+          type: string
+          description: Array of specific consumerIds to obtain data for
+          example: 30370f1b-cd27-4d56-b56d-beb49fc9aa48
+    QueryDataHolderBrandIds:
+      name: dataHolderBrandIds
+      in: query
+      description: Used to filter results on the dataHolderBrandId field.
+      schema:
+        type: array
+        items:
+          type: string
+          description: Array of specific dataHolderBrandIds to obtain data for
+          example: 30370f1b-cd27-4d56-b56d-beb49fc9aa48
+  #-------------------------------
+  # Reusable responses
+  #-------------------------------
+  responses:
+    401Unauthorised:
+      description: Unauthorised
+    403Forbidden:
+      description: Forbidden
+    404NotFound:
+      description: The specified resource was not found.
+    400BadRequest:
+      description: Request is invalid
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorList'
+    429RateLimited:
+      description: Ratelimit reached
+    GenericError:
+      description: An error occurred.
+      content:
+        application/json:
+          schema:
+            type: string
+            example: something went wrong
