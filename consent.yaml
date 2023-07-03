@@ -5,7 +5,7 @@ info:
   contact:
     name: Adatree
     email: engineering@adatree.com.au
-  version: '1.2.0'
+  version: '1.3.0'
 servers:
   - url: 'https://cdr-insights-prod.api.adatree.com.au'
     description: Server url
@@ -532,10 +532,6 @@ components:
   schemas:
     Authorization:
       type: object
-      required:
-        - code
-        - id_token
-        - state
       properties:
         code:
           type: string
@@ -548,6 +544,10 @@ components:
         id_token:
           type: string
           description: ID Token value associated with the authenticated session that is returned from the data holder.
+          example: eyJraWQiOiIxZTlnZGs3IiwiYWxnIjoiUl...
+        response:
+          type: string
+          description: response payload from the Dataholder after a successful consent using Auth Code Flow
           example: eyJraWQiOiIxZTlnZGs3IiwiYWxnIjoiUl...
     TokenCreatedResponse:
       type: object
