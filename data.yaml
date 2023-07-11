@@ -6075,8 +6075,10 @@ components:
       description: Page size to request
       schema:
         type: integer
+        format: int32
+        default: 10
         minimum: 1
-        example: 25
+        example: 10
     QueryProductCategory:
       name: productCategories
       in: query
