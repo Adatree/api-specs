@@ -4351,7 +4351,6 @@ components:
             holder
           type: string
         openStatus:
-          default: OPEN
           description: Open or closed status for the account. If not present then
             OPEN is assumed
           enum:
@@ -4365,7 +4364,6 @@ components:
           x-cds-type: DateString
       required:
         - accountId
-        - creationDate
       type: object
     EnergyAccountV2:
       allOf:
