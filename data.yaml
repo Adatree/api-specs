@@ -1086,10 +1086,6 @@ components:
           description: Date that the next payment for the card is due
     BankingLoanAccount:
       type: object
-      required:
-        - loanEndDate
-        - nextInstalmentDate
-        - repaymentFrequency
       properties:
         originalStartDate:
           type: string
