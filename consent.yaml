@@ -832,6 +832,7 @@ components:
             it can be revoked by a consumer via ADR or Data Holder<br/>
             an ongoing consent will expire on (if it is not revoked prior to) sharing end date
             a once_off consent will expire within 24 hours after the consent is GRANTED
+            Event DATA_COLLECTION_COMPLETED is published on completion of initial data collection
           enum: [GRANTED, REVOKED, EXPIRED, DATA_COLLECTION_COMPLETED]
         timestamp:
           type: string
