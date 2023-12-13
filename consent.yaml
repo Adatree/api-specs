@@ -30,18 +30,8 @@ paths:
           required: false
           schema:
             type: string
-        - name: consentId
-          in: query
-          example: 148c9187-e52b-431f-9b24-7225e75ca2be
-          required: false
-          schema:
-            type: string
-        - name: cdrArrangementId
-          in: query
-          example: 45db4977-b12f-42bf-808d-2680eb4bd366
-          required: false
-          schema:
-            type: string
+        - $ref: '#/components/parameters/ParamConsentId'
+        - $ref: '#/components/parameters/ParamCdrArrangementId'
         - name: status
           in: query
           required: false
@@ -91,7 +81,6 @@ paths:
           schema:
             type: string
             format: date-time
-            x-cds-type: DateTimeString
             example: "1997-01-12T15:43:00.121Z"
         - name: newestCreated
           description: Constrain the consent with created time at or before this date/time. If absent defaults to today.
@@ -101,7 +90,6 @@ paths:
           schema:
             type: string
             format: date-time
-            x-cds-type: DateTimeString
             example: "1997-01-12T15:43:00.121Z"
         - name: oldestRevoked
           description: Constrain the consent with revoked time at or after this date/time. If absent defaults to newestRevoked
@@ -111,7 +99,6 @@ paths:
           schema:
             type: string
             format: date-time
-            x-cds-type: DateTimeString
             example: "1997-01-12T15:43:00.121Z"
         - name: newestRevoked
           description: Constrain the consent with revoked time at or before this date/time. If absent defaults to today.
@@ -121,7 +108,6 @@ paths:
           schema:
             type: string
             format: date-time
-            x-cds-type: DateTimeString
           example: "1997-01-12T15:43:00.121Z"
         - name: oldestSharingEndDate
           description: Constrain the consent with sharingEndDate time at or after this date/time. If absent defaults to newestSharingEndDate
@@ -131,7 +117,6 @@ paths:
           schema:
             type: string
             format: date-time
-            x-cds-type: DateTimeString
           example: "1997-01-12T15:43:00.121Z"
         - name: newestSharingEndDate
           description: Constrain the consent with sharingEndDate time at or before this date/time. If absent defaults to today.
@@ -141,7 +126,6 @@ paths:
           schema:
             type: string
             format: date-time
-            x-cds-type: DateTimeString
             example: "1997-01-12T15:43:00.121Z"
         - name: externalId
           description: Constrain the consent by externalId
@@ -390,7 +374,6 @@ paths:
           schema:
             type: string
             format: date-time
-            x-cds-type: DateTimeString
             example: "2022-02-06T08:17:26Z"
         - name: newest
           description: Constrain the consent event result list with timestamp at or before this date/time. Format is aligned to DateTimeString common type
@@ -399,8 +382,8 @@ paths:
           schema:
             type: string
             format: date-time
-            x-cds-type: DateTimeString
             example: "2022-02-01T15:43:00.121Z"
+        - $ref: '#/components/parameters/ParamConsentId'
         - $ref: '#/components/parameters/ParamPage'
         - $ref: '#/components/parameters/ParamPageSize'
       callbacks:
@@ -659,7 +642,6 @@ components:
           type: string
           description: new sharing end date, will be validated against sharing duration options defined in chosen Use Case
           format: date-time
-          x-cds-type: DateTimeString
           example: "2023-04-19T15:43:00.121Z"
     UpdateConsentMachine:
       type: object
@@ -679,7 +661,6 @@ components:
           type: string
           description: sharing end date, will be validated against sharing duration options defined in chosen Use Case
           format: date-time
-          x-cds-type: DateTimeString
           example: "2023-04-19T15:43:00.121Z"
         dataHolderBrandId:
           type: string
@@ -731,29 +712,24 @@ components:
         created:
           type: string
           format: date-time
-          x-cds-type: DateTimeString
           example: "1997-01-12T15:43:00.121Z"
         revoked:
           type: string
           format: date-time
-          x-cds-type: DateTimeString
           example: "1997-01-12T15:43:00.121Z"
         lastNotificationSentAt:
           type: string
           format: date-time
-          x-cds-type: DateTimeString
           example: "1997-01-12T15:43:00.121Z"
         firstDataCollection:
           type: string
           format: date-time
-          x-cds-type: DateTimeString
           example: "2012-01-12T15:43:00.121Z"
         status:
           $ref: '#/components/schemas/Status'
         sharingEndDate:
           type: string
           format: date-time
-          x-cds-type: DateTimeString
           example: "2023-04-19T15:43:00.121Z"
         consumerEmail:
           type: string
@@ -856,11 +832,10 @@ components:
             it can be revoked by a consumer via ADR or Data Holder<br/>
             an ongoing consent will expire on (if it is not revoked prior to) sharing end date
             a once_off consent will expire within 24 hours after the consent is GRANTED
-          enum: [GRANTED, REVOKED, EXPIRED]
+          enum: [GRANTED, REVOKED, EXPIRED, DATA_COLLECTION_COMPLETED]
         timestamp:
           type: string
           format: date-time
-          x-cds-type: DateTimeString
           example: "2022-01-20T15:00:00.999Z"
         cdrArrangementId:
           type: string
@@ -896,27 +871,22 @@ components:
           description: Fully qualified link that generated the current response document.
             https://self.example.com.au will be converted to https://self.example.com.au?page=1&page-size=25
           example: https://self.example.com.au?page=3&page-size=25
-          x-cds-type: URIString
         first:
           type: string
           description: URI to the first page of this set. Mandatory if this response is not the first page
           example: https://self.example.com.au?page=1&page-size=25
-          x-cds-type: URIString
         prev:
           type: string
           description: URI to the previous page of this set. Mandatory if this response is not the first page
           example: https://self.example.com.au?page=2&page-size=25
-          x-cds-type: URIString
         next:
           type: string
           description: URI to the next page of this set. Mandatory if this response is not the last page
           example: https://self.example.com.au?page=4&page-size=25
-          x-cds-type: URIString
         last:
           type: string
           description: URI to the last page of this set. Mandatory if this response is not the last page
           example: https://self.example.com.au?page=15&page-size=25
-          x-cds-type: URIString
       x-conditional:
         - prev
         - next
@@ -932,12 +902,10 @@ components:
           type: integer
           description: The total number of pages in the full set.
           example: 4
-          x-cds-type: NaturalNumber
         totalRecords:
           type: integer
           description: The total number of records in the full set.
           example: 95
-          x-cds-type: NaturalNumber
     ConsentEventList:
       type: object
       required:
@@ -1222,7 +1190,6 @@ components:
         default: 1
         minimum: 1
         example: 1
-        x-cds-type: PositiveInteger
     ParamPageSize:
       name: page-size
       in: query
@@ -1232,7 +1199,22 @@ components:
         default: 25
         minimum: 1
         example: 25
-        x-cds-type: PositiveInteger            
+    ParamConsentId:
+      name: consentId
+      in: query
+      description: consent id
+      required: false
+      schema:
+        type: string
+        example: 148c9187-e52b-431f-9b24-7225e75ca2be
+    ParamCdrArrangementId:
+      name: cdrArrangementId
+      in: query
+      description: cdr arrangement id
+      required: false
+      schema:
+        type: string
+        example: 45db4977-b12f-42bf-808d-2680eb4bd366
     HeaderConsumerUserAgent:
       name: Adatree-Consumer-User-Agent
       in: header
