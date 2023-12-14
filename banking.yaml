@@ -2,13 +2,13 @@ openapi: 3.0.1
 info:
   title: Adatree ADR Platform Open Banking API
   description: |-
-    Adatree's Accredited Data Recipient (ADR) Platform Open Banking API definition. API payloads conform to the Consumer Data Right Data Standard.
-    Payloads are sample payloads to represent the types of data to which the CDR regime gives access. Adatree's simplified API makes it easier for you to access the CDR ecosystem. It also keeps the data in the original, open source, CDR format to avoid lock-in to a proprietary format.
+    Adatree's Accredited Data Recipient (ADR) Platform Open Banking API definition. API payloads conform to the Consumer Data Right Data Standard 1.5.1.
+    Payloads are sample payloads to represent the types of data to which the CDR regime gives access. Adatree's simplified API makes it easier for you to access the CDR ecosystem, while maintaining the high security standards implemented by the regime. It also keeps the data in the original, open source, CDR format to avoid lock-in to a proprietary format.
   contact:
     name: Adatree Pty Ltd
     url: https://adatree.com.au
     email: engineering@adatree.com.au
-  version: "1.0.0"
+  version: "2.0.1"
 servers:
   - url: https://cdr-insights-prod.api.adatree.com.au
 security:
@@ -1240,6 +1240,15 @@ components:
           description: Flag indicating that the customer associated with the authorisation is an owner of the account. Does not indicate sole ownership, however. If not present then 'true' is assumed
           default: true
           x-cds-type: Boolean
+        accountOwnership:
+          type: string
+          description: Value indicating the number of customers that have ownership of the account, according to the data holder's definition of account ownership. Does not indicate that all account owners are eligible consumers
+          enum:
+            - UNKNOWN
+            - ONE_PARTY
+            - TWO_PARTY
+            - MANY_PARTY
+            - OTHER
         maskedNumber:
           type: string
           example: "xxx-xxx xxxxx1234"
@@ -1770,6 +1779,7 @@ components:
           description: The type of payee. DOMESTIC means a registered payee for domestic payments including NPP. INTERNATIONAL means a registered payee for international payments. BILLER means a registered payee for BPAY
           enum:
             - BILLER
+            - DIGITAL_WALLET
             - DOMESTIC
             - INTERNATIONAL
         creationDate:
@@ -1789,19 +1799,50 @@ components:
               example: biller
               description: Type of object included that describes the payee in detail
               enum:
-                - domestic
                 - biller
+                - digitalWallet
+                - domestic
                 - international
-            domestic:
-              $ref: '#/components/schemas/BankingDomesticPayee'
             biller:
               $ref: '#/components/schemas/BankingBillerPayee'
+            digitalWallet:
+              $ref: '#/components/schemas/BankingDigitalWalletPayee'
+            domestic:
+              $ref: '#/components/schemas/BankingDomesticPayee'
             international:
               $ref: '#/components/schemas/BankingInternationalPayee'
           x-conditional:
-            - domestic
             - biller
+            - digitalWallet
+            - domestic
             - international
+    BankingDigitalWalletPayee:
+      required:
+        - identifier
+        - name
+        - provider
+        - type
+      type: object
+      properties:
+        name:
+          type: string
+          description: The name assigned to the digital wallet by the owner of the wallet, else the display name provided by the digital wallet provider
+        identifier:
+          type: string
+          description: The identifier of the digital wallet (dependent on type)
+        type:
+          type: string
+          description: The type of the digital wallet identifier
+          enum:
+            - EMAIL
+            - CONTACT_NAME
+            - TELEPHONE
+        provider:
+          type: string
+          description: The provider of the digital wallet
+          enum:
+            - PAYPAL_AU
+            - OTHER
     BankingDomesticPayee:
       type: object
       required:
@@ -2360,6 +2401,15 @@ components:
           example: 233211
           description: Value is a valid [ANZSCO](http://www.abs.gov.au/ANZSCO) Standard Occupation classification code. If the occupation code held by the data holder is not one of the supported [ANZSCO](http://www.abs.gov.au/ANZSCO) versions, then it must not be supplied.
           x-cds-type: ExternalRef
+        occupationCodeVersion:
+          type: string
+          description: The applicable **[[ANZSCO]](#iref-ANZSCO)** release version of the occupation code provided. Mandatory if an ``occupationCode`` is supplied. If ``occupationCode`` is supplied but ``occupationCodeVersion`` is absent, default is ``ANZSCO_1220.0_2013_V1.2``
+          default: ANZSCO_1220.0_2013_V1.2
+          enum:
+            - ANZSCO_1220.0_2006_V1.0
+            - ANZSCO_1220.0_2006_V1.1
+            - ANZSCO_1220.0_2013_V1.2
+            - ANZSCO_1220.0_2013_V1.3
     CommonPersonDetail:
       allOf:
         - $ref: '#/components/schemas/CommonPerson'
@@ -2439,6 +2489,13 @@ components:
           example: MINING
           description: A valid [ANZSIC](http://www.abs.gov.au/ANZSIC) code for the organisation. If the industry code held by the data holder is not one of the supported [ANZSIC](http://www.abs.gov.au/ANZSIC) versions, then it must not be supplied.
           x-cds-type: ExternalRef
+        industryCodeVersion:
+          type: string
+          description: The applicable [ANZSIC](http://www.abs.gov.au/ANZSIC) release version of the industry code provided. Should only be supplied if ``industryCode`` is also supplied. If ``industryCode`` is supplied but ``industryCodeVersion`` is absent, default is ``ANZSIC_1292.0_2006_V2.0``
+          default: ANZSIC_1292.0_2006_V2.0
+          enum:
+            - ANZSIC_1292.0_2006_V1.0
+            - ANZSIC_1292.0_2006_V2.0
         organisationType:
           type: string
           example: COMPANY
@@ -2739,6 +2796,10 @@ components:
           type: string
           description: Used to identify the consent arrangement for returned customer data
           example: 998621c8-1e1d-44ca-826e-754b910e5697
+        fapiInteractionId:
+          type: string
+          description: Used to identify and verify the data-holder request
+          example: 2144eaaa-0b5b-4a97-a131-f42f2084ee45
         debug:
           type: object
           description: troubleshooting infor for CTS testing
@@ -2804,6 +2865,10 @@ components:
           type: string
           description: Used to identify the consent arrangement for returned customer data
           example: 998621c8-1e1d-44ca-826e-754b910e5697
+        fapiInteractionId:
+          type: string
+          description: Used to identify and verify the data-holder request
+          example: 2144eaaa-0b5b-4a97-a131-f42f2084ee45
         debug:
           type: object
           description: troubleshooting info
@@ -3259,10 +3324,9 @@ components:
     RequestHeader_x-fapi-auth-date:
       name: x-fapi-auth-date
       in: header
-      required: true
-      description: The time when the customer last logged in to the data recipient.
-        Required for all resource calls (customer present and unattended). Not to be included for unauthenticated calls.
-        Format is "HTTP-date" as in section "7.1.1.1" of RFC7231, e.g., "Tue, 11 Sep 2012 19:43:31 GMT"
+      description: The time when the customer last logged in to the data recipient. Required for all
+        resource calls from a machine client. Format is "HTTP-date" as in section "7.1.1.1" of RFC7231,
+        e.g., "Tue, 11 Sep 2012 19:43:31 GMT"
       schema:
         type: string
         example: 'Tue, 11 Sep 2012 19:43:31 GMT'
