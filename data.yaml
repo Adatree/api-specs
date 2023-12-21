@@ -7,7 +7,7 @@ info:
     name: Adatree Pty Ltd
     url: https://adatree.com.au
     email: engineering@adatree.com.au
-  version: "1.0.1"
+  version: "1.1.0"
 servers:
   - url: https://cdr-insights-prod.api.adatree.com.au
 paths:
@@ -69,6 +69,7 @@ paths:
         - $ref: '#/components/parameters/QueryConsumerIds'
         - $ref: '#/components/parameters/QueryDataHolderBrandIds'
         - $ref: '#/components/parameters/QueryTransactionTypes'
+        - $ref: '#/components/parameters/QueryTransactionStatuses'
         - $ref: '#/components/parameters/QueryTransactionMinimumAmount'
         - $ref: '#/components/parameters/QueryTransactionMaximumAmount'
         - $ref: '#/components/parameters/QueryTransactionOldestRetrievalTime'
@@ -6190,6 +6191,16 @@ components:
       schema:
         type: string
         example: "2012-12-25T15:43:00-08:00"
+    QueryTransactionStatuses:
+      name: statuses
+      in: query
+      description: Used to filter results by status.
+      schema:
+        type: array
+        items:
+          type: string
+          description: Array of specific transaction status to obtain data for
+          example: [POSTED]
     QueryTransactionTypes:
       name: types
       in: query
