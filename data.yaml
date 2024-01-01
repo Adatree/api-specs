@@ -3651,6 +3651,14 @@ components:
               description:
                 description: A description of the tariff
                 type: string
+              startDate:
+                description: The start date of the application of the feed in tariff
+                type: string
+                x-cds-type: DateString
+              endDate:
+                description: The end date of the application of the feed in tariff
+                type: string
+                x-cds-type: DateString
               scheme:
                 description: The applicable scheme
                 enum:
@@ -3674,10 +3682,39 @@ components:
                   is set to singleTariff
                 properties:
                   amount:
-                    description: The tariff amount
+                    description: The tariff amount. This will be the tariff representation returned by data holders support EnergyAccountDetailV2.
                     type: string
-                required:
-                  - amount
+                  rates:
+                    description: Array of feed in rates. This will be the tariff representation returned by data holders support EnergyAccountDetailV3.
+                    items:
+                      properties:
+                        unitPrice:
+                          description: Unit price of usage per measure unit (exclusive
+                            of GST)
+                          type: string
+                          x-cds-type: AmountString
+                        measureUnit:
+                          description: The measurement unit of rate. Assumed to be
+                            KWH if absent
+                          enum:
+                            - KWH
+                            - KVA
+                            - KVAR
+                            - KVARH
+                            - KW
+                            - DAYS
+                            - METER
+                            - MONTH
+                          type: string
+                        volume:
+                          description: Volume that this rate applies to. Only applicable
+                            for ‘stepped’ rates where different rates apply for different
+                            volumes of usage in a period
+                          type: number
+                      required:
+                        - unitPrice
+                      type: object
+                    type: array
                 type: object
               timeVaryingTariffs:
                 description: Represents a tariff based on time.  Mandatory if tariffUType
@@ -3694,6 +3731,37 @@ components:
                   amount:
                     description: The tariff amount
                     type: string
+                  rates:
+                    description: Array of feed in rates. This will be the tariff representation returned by data holders support EnergyAccountDetailV3.
+                    items:
+                      properties:
+                        unitPrice:
+                          description: Unit price of usage per measure unit (exclusive
+                            of GST)
+                          type: string
+                          x-cds-type: AmountString
+                        measureUnit:
+                          description: The measurement unit of rate. Assumed to be
+                            KWH if absent
+                          enum:
+                            - KWH
+                            - KVA
+                            - KVAR
+                            - KVARH
+                            - KW
+                            - DAYS
+                            - METER
+                            - MONTH
+                          type: string
+                        volume:
+                          description: Volume that this rate applies to. Only applicable
+                            for ‘stepped’ rates where different rates apply for different
+                            volumes of usage in a period
+                          type: number
+                      required:
+                        - unitPrice
+                      type: object
+                    type: array
                   timeVariations:
                     description: Array of time periods for which this tariff is applicable
                     items:
@@ -3728,7 +3796,6 @@ components:
                       type: object
                     type: array
                 required:
-                  - amount
                   - timeVariations
                 type: object
             required:
