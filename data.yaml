@@ -457,7 +457,6 @@ paths:
         - $ref: '#/components/parameters/QueryDataHolderBrandIds'
         - $ref: '#/components/parameters/QueryPage'
         - $ref: '#/components/parameters/QueryPageSize'
-        - $ref: '#/components/parameters/QueryRefresh'
         - $ref: '#/components/parameters/QueryOldestDate'
         - $ref: '#/components/parameters/QueryNewestDate'
         - $ref: '#/components/parameters/HeaderConsumerAuthDate'
@@ -6426,16 +6425,6 @@ components:
       description: User Agent header of the consumer facing application. Mandatory for consumer present calls using a Machine token.
       schema:
         type: string
-    QueryRefresh:
-      name: refresh
-      in: query
-      description: |
-        toggle this on to retrieve data synchronously from the data holder. If using a Machine token, add the following
-        headers to perform a consumer present request: Adatree-Consumer-User-Agent, Adatree-Consumer-Auth-Date, Adatree-Consumer-Ip-Address.
-        If no headers are added, an unattended request will be made.
-      schema:
-        type: boolean
-        default: false
     QueryOldestDate:
       name: oldestDate
       in: query
