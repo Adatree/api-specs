@@ -3273,6 +3273,7 @@ components:
         type: integer
         default: 25
         minimum: 1
+        maximum: 1000
         example: 25
         x-cds-type: PositiveInteger
     ParamAccountOpenStatus:
