@@ -579,26 +579,11 @@ components:
           type: string
           description: The logo URI of the data holder you wish the consumer to authenitcate with.
           example: https://www.westpac.com.au/logo
-        sector:
-          type: string
-          example: banking
-        scopesSupported:
+        industries:
           type: array
-          example: ["bank:accounts.basic:read", "bank:accounts.detail:read", "bank:transactions:read", "bank:payees:read", "bank:regular_payments:read", "common:customer.basic:read", "common:customer.detail:read"]
-          description: a list of Authorisation Scopes supported by data holder
+          description: list of industries this data holder belongs to.
           items:
-            type: string
-        meta:
-          $ref: '#/components/schemas/MetaBanking'
-    MetaBanking:
-      type: object
-      properties:
-        bsbPrefix:
-          type: array
-          description: DEPRECATED. a list of bsb prefixes for a data-holder
-          items:
-            type: string
-            description: first two or three digits that specify the financial institution.
+            $ref: '#/components/schemas/Industry'
     UpdateConsentConsumer:
       type: object
       properties:
