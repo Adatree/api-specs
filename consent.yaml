@@ -280,37 +280,6 @@ paths:
           $ref: '#/components/responses/404NotFound'
         429:
           $ref: '#/components/responses/429RateLimited'
-  /consents/{consentId}/history:
-    get:
-      security:
-        - m2m: ['consents:read']
-      tags:
-        - Consents
-      summary: Get Consent History
-      description: Retreive an individual consent record's change history
-      operationId: getHistory
-      parameters:
-        - name: consentId
-          in: path
-          required: true
-          example: 148c9187-e52b-431f-9b24-7225e75ca2be
-          schema:
-            type: string
-      responses:
-        200:
-          description: successful response
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ConsentHistoryResponse'
-        401:
-          $ref: '#/components/responses/401Unauthorised'
-        403:
-          $ref: '#/components/responses/403Forbidden'
-        404:
-          $ref: '#/components/responses/404NotFound'
-        429:
-          $ref: '#/components/responses/429RateLimited'
   /consents/{consentId}/authorization:
     get:
       summary: Get Authorization Redirect URL for a Consent
@@ -695,13 +664,6 @@ components:
         uri:
           example: https://id.rab.sandbox.adatree.com.au/identity/authorization?response_type=code+id_token&client_id=abcdefg&request_uri=urn%3Aietf%3Aparams%3Aoauth%3Arequest_uri%3A-asdfasdfuhlkjshdf_akjsldflasjd&scope=openid+bank%3Aaccounts.basic%3Aread+bank%3Aaccounts.detail%3Aread+bank%3Atransactions%3Aread+common%3Acustomer.basic%3Aread
           type: string
-    ConsentHistoryResponse:
-      type: object
-      properties:
-        consents:
-          type: array
-          items:
-            $ref: '#/components/schemas/ConsentResponse'
     ConsentResponse:
       type: object
       properties:
