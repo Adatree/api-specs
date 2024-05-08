@@ -1011,10 +1011,12 @@ components:
           type: string
           example: "cdr_consumer@gmail.com"
           description: The email address of the consumer you wish to send the link to. This will be the email used for consent related notification for this consumer.
+          required: true
         notifyConsumer:
           type: boolean
           example: false
           description: Request Adatree to send a passwordless login email to the email address specified in the request.
+          required: false
     PasswordlessLoginLinkResponse:
       type: object
       properties:
