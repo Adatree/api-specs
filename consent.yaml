@@ -1010,20 +1010,30 @@ components:
         email:
           type: string
           example: "cdr_consumer@gmail.com"
+          description: The email address of the consumer you wish to send the link to. This will be the email used for consent related notification for this consumer.
         notifyConsumer:
           type: boolean
           example: false
+          description: Request Adatree to send a passwordless login email to the email address specified in the request.
     PasswordlessLoginLinkResponse:
       type: object
       properties:
         link:
           type: string
+          example: https://consent.dahsboard.app/passwordless-sign-in?token=eyJraWQ...
+          description: The URI to be send to the consumer in order to log in.
         sub:
           type: string
+          example: 2340615fde9bbe...
+          description: The subject identifier (sub) that will be used to identify this consumer going forward. This identifier is linked to the consumer's email address and cannot be changed.
         email:
           type: string
+          example: "cdr_consumer@gmail.com"
+          description: The email address of the consumer you wish to send the link to. This will be the email used for consent related notification for this consumer.
         seconds_remaining:
           type: number
+          example: 259199
+          description: The time-to-live (TTL) of the link.
     ResponseErrorList:
       type: object
       required:
