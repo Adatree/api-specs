@@ -465,6 +465,31 @@ paths:
         403:
           $ref: '#/components/responses/403Forbidden'
         429:
+          $ref: '#/components/responses/429RateLimited'  
+  /passwordless-login:
+    post:
+      security:
+        - m2m: [ 'passwordless-login:write' ]
+      tags:
+        - Identity
+      summary: Create a passwordless login link
+      description: >
+        A passwordless login link which will be sent to a consumer and can be used to sign in to the consent dashboard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordlessLoginLinkRequest'
+      responses:
+        201:
+          $ref: '#/components/schemas/PasswordlessLoginLinkResponse'
+        401:
+          $ref: '#/components/responses/401Unauthorised'
+        403:
+          $ref: '#/components/responses/403Forbidden'
+        404:
+          $ref: '#/components/responses/404NotFound'
+        429:
           $ref: '#/components/responses/429RateLimited'
 components:
   securitySchemes:
@@ -979,6 +1004,26 @@ components:
           type: string
           description: Stringified JSON Schema for customData
           example: {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"type\":\"object\",\"title\":\"custom data Schema\",\"description\":\"JSON schema of customer data\",\"purpose\":\"explain why custom data is needed\",\"properties\":{\"employerName\":{\"type\":\"string\",\"displayText\":\"Employer name\",\"uiComponent\":{\"inputType\":\"text\"},\"rules\":{\"required\":\"Employer name is required\"}}}}
+    PasswordlessLoginLinkRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          example: "cdr_consumer@gmail.com"
+        notifyConsumer:
+          type: boolean
+          example: false
+    PasswordlessLoginLinkResponse:
+      type: object
+      properties:
+        link:
+          type: string
+        sub:
+          type: string
+        email:
+          type: string
+        seconds_remaining:
+          type: number
     ResponseErrorList:
       type: object
       required:
