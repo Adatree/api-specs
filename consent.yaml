@@ -1026,7 +1026,7 @@ components:
       properties:
         link:
           type: string
-          example: https://consent.dahsboard.app/passwordless-sign-in?token=eyJraWQ...
+          example: https://consent.dashboard.app/passwordless-sign-in?token=eyJraWQ...
           description: The URI to be send to the consumer in order to log in.
         sub:
           type: string
