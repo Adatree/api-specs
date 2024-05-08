@@ -465,6 +465,31 @@ paths:
         403:
           $ref: '#/components/responses/403Forbidden'
         429:
+          $ref: '#/components/responses/429RateLimited'  
+  /passwordless-login:
+    post:
+      security:
+        - m2m: [ 'passwordless-login:write' ]
+      tags:
+        - Identity
+      summary: Create a passwordless login link
+      description: >
+        A passwordless login link which will be sent to a consumer and can be used to sign in to the consent dashboard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordlessLoginLinkRequest'
+      responses:
+        201:
+          $ref: '#/components/schemas/PasswordlessLoginLinkResponse'
+        401:
+          $ref: '#/components/responses/401Unauthorised'
+        403:
+          $ref: '#/components/responses/403Forbidden'
+        404:
+          $ref: '#/components/responses/404NotFound'
+        429:
           $ref: '#/components/responses/429RateLimited'
 components:
   securitySchemes:
@@ -979,6 +1004,38 @@ components:
           type: string
           description: Stringified JSON Schema for customData
           example: {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"type\":\"object\",\"title\":\"custom data Schema\",\"description\":\"JSON schema of customer data\",\"purpose\":\"explain why custom data is needed\",\"properties\":{\"employerName\":{\"type\":\"string\",\"displayText\":\"Employer name\",\"uiComponent\":{\"inputType\":\"text\"},\"rules\":{\"required\":\"Employer name is required\"}}}}
+    PasswordlessLoginLinkRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          example: "cdr_consumer@gmail.com"
+          description: The email address of the consumer you wish to send the link to. This will be the email used for consent related notification for this consumer.
+          required: true
+        notifyConsumer:
+          type: boolean
+          example: false
+          description: Request Adatree to send a passwordless login email to the email address specified in the request.
+          required: false
+    PasswordlessLoginLinkResponse:
+      type: object
+      properties:
+        link:
+          type: string
+          example: https://consent.dahsboard.app/passwordless-sign-in?token=eyJraWQ...
+          description: The URI to be send to the consumer in order to log in.
+        sub:
+          type: string
+          example: 2340615fde9bbe...
+          description: The subject identifier (sub) that will be used to identify this consumer going forward. This identifier is linked to the consumer's email address and cannot be changed.
+        email:
+          type: string
+          example: "cdr_consumer@gmail.com"
+          description: The email address of the consumer you wish to send the link to. This will be the email used for consent related notification for this consumer.
+        seconds_remaining:
+          type: number
+          example: 259199
+          description: The time-to-live (TTL) of the link.
     ResponseErrorList:
       type: object
       required:
