@@ -1020,7 +1020,7 @@ components:
         notifyConsumer:
           type: boolean
           description: Request Adatree to send a passwordless login email to the email address specified in the request.
-          required: false
+          example: false
     PasswordlessLoginLinkResponse:
       type: object
       properties:
