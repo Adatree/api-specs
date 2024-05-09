@@ -1010,15 +1010,15 @@ components:
           example: {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"type\":\"object\",\"title\":\"custom data Schema\",\"description\":\"JSON schema of customer data\",\"purpose\":\"explain why custom data is needed\",\"properties\":{\"employerName\":{\"type\":\"string\",\"displayText\":\"Employer name\",\"uiComponent\":{\"inputType\":\"text\"},\"rules\":{\"required\":\"Employer name is required\"}}}}
     PasswordlessLoginLinkRequest:
       type: object
+      required:
+        - email
       properties:
         email:
           type: string
           example: "cdr_consumer@gmail.com"
           description: The email address of the consumer you wish to send the link to. This will be the email used for consent related notification for this consumer.
-          required: true
         notifyConsumer:
           type: boolean
-          example: false
           description: Request Adatree to send a passwordless login email to the email address specified in the request.
           required: false
     PasswordlessLoginLinkResponse:
