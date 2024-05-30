@@ -809,7 +809,21 @@ components:
             an ongoing consent will expire on (if it is not revoked prior to) sharing end date
             a once_off consent will expire within 24 hours after the consent is GRANTED
             Event DATA_COLLECTION_COMPLETED is published on completion of initial data collection
-          enum: [GRANTED, REVOKED, EXPIRED, DATA_COLLECTION_COMPLETED]
+            Event WEBHOOK_SENT is published on successful sending of a webhook
+            Event WEBHOOK_SENDING_FAILED_CLIENT_ERROR is published on failed sending of a webhook because of a target server error
+            Event WEBHOOK_SENDING_FAILED is published on failed sending of a webhook
+          enum:
+            - GRANTED
+            - EXTENDED
+            - REVOKED
+            - EXPIRED
+            - DATA_COLLECTION_COMPLETED
+            - WEBHOOK_SENT
+            - WEBHOOK_SENDING_FAILED
+            - WEBHOOK_SENDING_FAILED_CLIENT_ERROR
+        eventDetail:
+          type: string
+          example: consent activated
         timestamp:
           type: string
           format: date-time
@@ -831,6 +845,7 @@ components:
         sharingEndDate:
           type: string
           format: date-time
+          example: "2023-04-19T15:43:00.121Z"
         consumerEmail:
           type: string
           example: "consumer@example.com"
@@ -838,6 +853,7 @@ components:
           $ref: '#/components/schemas/ConsentGrantee'
         customData:
           type: object
+          example: { "employerName": "Adatree" }
     LinksPaginated:
       type: object
       required:
