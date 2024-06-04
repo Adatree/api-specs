@@ -5854,7 +5854,6 @@ components:
         adatree:
           $ref: '#/components/schemas/Adatree'
       required:
-        - plans
         - adatree
       type: object
     EnergyPaymentSchedule_cardDebit:
