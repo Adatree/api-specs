@@ -567,6 +567,7 @@ components:
         meta:
           $ref: '#/components/schemas/MetaPaginated'
     BankingAccountList_data:
+      type: object
       required:
         - accounts
       properties:
@@ -576,6 +577,7 @@ components:
           items:
             $ref: '#/components/schemas/BankingAccountDetail'
     BankingPayeeList_data:
+      type: object
       required:
         - payees
       properties:
@@ -584,6 +586,7 @@ components:
           items:
             $ref: '#/components/schemas/BankingPayeeDetail'
     BankingProductList_data:
+      type: object
       required:
         - products
       properties:
@@ -602,6 +605,7 @@ components:
             $ref: '#/components/schemas/BankingDirectDebit'
           type: array
     BankingScheduledPaymentsList_data:
+      type: object
       required:
         - scheduledPayments
       properties:
@@ -657,6 +661,7 @@ components:
         adatree:
           $ref: '#/components/schemas/Adatree'
     BankingScheduledPaymentSet:
+      type: object
       required:
         - to
       properties:
@@ -1842,6 +1847,7 @@ components:
           items:
             $ref: '#/components/schemas/ErrorList_errors'
     BankingTransactionList_data:
+      type: object
       required:
         - transactions
       properties:
@@ -1953,6 +1959,7 @@ components:
         - transactionId
         - postingDateTime
     BankingTransaction_extendedData_x2p101Payload:
+      type: object
       required:
         - extendedDescription
       properties:
@@ -1969,6 +1976,7 @@ components:
           description: Purpose of the payment.  Format is defined by NPP standards for the x2p1.01 overlay service
           example: payment-purpose-npp
     BankingTransaction_extendedData:
+      type: object
       required:
         - service
       properties:
@@ -1995,6 +2003,7 @@ components:
           enum:
             - X2P1.01
     Adatree:
+      type: object
       description: Extra data and metadata provided by Adatree
       required:
         - consentId
@@ -2048,6 +2057,7 @@ components:
               items:
                 $ref: '#/components/schemas/SecuredCdsDataApiError'
     BankingPayee:
+      type: object
       example:
         nickname: nickname
         description: description
@@ -2289,6 +2299,7 @@ components:
         - additionalValue
         - additionalInfo
     BankingProductV3_additionalInformation:
+      type: object
       properties:
         overviewUri:
           type: string
@@ -2349,6 +2360,7 @@ components:
           description: The URI describing the additional information
           x-cds-type: URIString
     BankingProductV3_cardArt:
+      type: object
       required:
         - imageUri
       properties:
@@ -4185,6 +4197,7 @@ components:
         - validFromDate
       type: object
     EnergyServicePointDetail:
+      type: object
       properties:
         servicePointId:
           description: The tokenised ID of the service point for use in the CDR APIs.  Created
@@ -4861,6 +4874,18 @@ components:
           items:
             $ref: '#/components/schemas/EnergyBillingUsageTransaction_adjustments'
           type: array
+        measureUnit:
+          description: The measurement unit of rate. Assumed to be KVA if absent
+          enum:
+            - KWH
+            - KVA
+            - KVAR
+            - KVARH
+            - KW
+            - DAYS
+            - METER
+            - MONTH
+          type: string
       required:
         - amount
         - endDate
@@ -5052,6 +5077,7 @@ components:
             - BALANCE_REFRESH_ERROR
             - CONSUMER_PRESENT_REFRESH_ERROR
             - THROTTLED_BY_DATA_HOLDER_ERROR
+            - COLLECTION_ERROR
         title:
           description: A short, human-readable summary of the problem.
           type: string
@@ -5827,8 +5853,7 @@ components:
         - planOverview
         - planDetail
     EnergyAccountDetailV2_allOf:
-      description: The array of plans containing service points and associated plan
-        details
+      description: The array of plans containing service points and associated plan details
       properties:
         balance:
           description: The current balance of the account.  A positive value indicates
@@ -6138,7 +6163,8 @@ components:
         format: int32
         default: 25
         minimum: 1
-        example: 10
+        maximum: 1000
+        example: 25
     QueryProductCategory:
       name: productCategories
       in: query
