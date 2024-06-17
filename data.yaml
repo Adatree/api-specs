@@ -4767,6 +4767,7 @@ components:
             - CONTROLLED_LOAD
             - SOLAR
             - AGGREGATE
+            - ALL_DAY
           type: string
         description:
           description: Optional description of the transaction that can be used for
@@ -4841,6 +4842,8 @@ components:
             - CONTROLLED_LOAD
             - SOLAR
             - AGGREGATE
+            - ALL_DAY
+            - EXCESS
           type: string
         description:
           description: Optional description of the transaction that can be used for
