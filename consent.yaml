@@ -1260,7 +1260,6 @@ components:
       schema:
         type: array
         items:
-          type: string
-        $ref: '#/components/schemas/ConsentEventType'
+          $ref: '#/components/schemas/ConsentEventType'
         example: 'WEBHOOK_SENDING_FAILED,WEBHOOK_SENDING_FAILED_CLIENT_ERROR'
       description: Consent event types to be returned
