@@ -1155,6 +1155,7 @@ components:
           example: https://adatree.com.au/cdr-policy
     ConsentEventType:
       title: ConsentEventType
+      type: string
       description: |
         This identifies the different types of events through a consent's lifecycle. <br/>
         A consent becomes GRANTED after consumer consent with Data Holder<br/>
