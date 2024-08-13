@@ -355,6 +355,7 @@ paths:
         - $ref: '#/components/parameters/ParamConsentId'
         - $ref: '#/components/parameters/ParamPage'
         - $ref: '#/components/parameters/ParamPageSize'
+        - $ref: '#/components/parameters/QueryConsentEventType'
       callbacks:
         ConsentUpdated:
           $YourWebhookUrl:
@@ -465,7 +466,7 @@ paths:
         403:
           $ref: '#/components/responses/403Forbidden'
         429:
-          $ref: '#/components/responses/429RateLimited'  
+          $ref: '#/components/responses/429RateLimited'
   /passwordless-login:
     post:
       security:
@@ -787,6 +788,7 @@ components:
           example: 1
           format: int32
     ConsentEventData:
+      type: object
       properties:
         events:
           type: array
@@ -801,26 +803,7 @@ components:
           description: a UUID of the event that could be used for idempotent event processing
           example: 32dd2e21-e7c8-44b1-b379-39e2ccd7a097
         eventType:
-          type: string
-          description: |
-            This identifies the different types of events through a consent's lifecycle. <br/>
-            A consent becomes GRANTED after consumer consent with Data Holder<br/>
-            it can be revoked by a consumer via ADR or Data Holder<br/>
-            an ongoing consent will expire on (if it is not revoked prior to) sharing end date
-            a once_off consent will expire within 24 hours after the consent is GRANTED
-            Event DATA_COLLECTION_COMPLETED is published on completion of initial data collection
-            Event WEBHOOK_SENT is published on successful sending of a webhook
-            Event WEBHOOK_SENDING_FAILED_CLIENT_ERROR is published on failed sending of a webhook because of a target server error
-            Event WEBHOOK_SENDING_FAILED is published on failed sending of a webhook
-          enum:
-            - GRANTED
-            - EXTENDED
-            - REVOKED
-            - EXPIRED
-            - DATA_COLLECTION_COMPLETED
-            - WEBHOOK_SENT
-            - WEBHOOK_SENDING_FAILED
-            - WEBHOOK_SENDING_FAILED_CLIENT_ERROR
+          $ref: '#/components/schemas/ConsentEventType'
         eventDetail:
           type: string
           example: consent activated
@@ -1144,7 +1127,7 @@ components:
         - ANY
     Industry:
       type: string
-      example: ACTIVE
+      example: BANKING
       enum:
         - BANKING
         - ENERGY
@@ -1170,6 +1153,23 @@ components:
           type: string
           description: The logo URI of the data holder you wish the consumer to authenticate with.
           example: https://adatree.com.au/cdr-policy
+    ConsentEventType:
+      title: ConsentEventType
+      description: |
+        This identifies the different types of events through a consent's lifecycle. <br/>
+        A consent becomes GRANTED after consumer consent with Data Holder<br/>
+        it can be revoked by a consumer via ADR or Data Holder<br/>
+        an ongoing consent will expire on (if it is not revoked prior to) sharing end date
+        a once_off consent will expire within 24 hours after the consent is GRANTED
+      enum:
+        - GRANTED
+        - EXTENDED
+        - REVOKED
+        - EXPIRED
+        - DATA_COLLECTION_COMPLETED
+        - WEBHOOK_SENT
+        - WEBHOOK_SENDING_FAILED
+        - WEBHOOK_SENDING_FAILED_CLIENT_ERROR
   #-------------------------------
   # Reusable responses
   #-------------------------------
@@ -1254,3 +1254,13 @@ components:
       schema:
         type: string
         example: 127.0.0.1
+    QueryConsentEventType:
+      name: eventTypes
+      in: query
+      schema:
+        type: array
+        items:
+          type: string
+        $ref: '#/components/schemas/ConsentEventType'
+        example: 'WEBHOOK_SENDING_FAILED,WEBHOOK_SENDING_FAILED_CLIENT_ERROR'
+      description: Consent event types to be returned
