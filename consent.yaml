@@ -440,16 +440,25 @@ paths:
         - bearerAuth: [ 'consumer:use-cases:read', 'use-cases:read' ]
         - m2m: [ 'use-cases:read' ]
       tags:
-        - UseCase
+        - Use Case
       summary: Get Use-cases
       description: Get all use-cases that have been configured. A use case is your reason for requesting consent from a consumer e.g. a home loan assessment, a budgeting app.
       operationId: findAllUseCases
       parameters:
+        - name: active
+          in: query
+          description: filter Use Cases by active status
+          required: false
+          example: true
+          default: false
+          schema:
+            type: boolean
         - name: combineScopes
           in: query
           description: Combine scopes that can be combined according to the CDR Consumer Experience Standards
           required: false
           example: true
+          default: false
           schema:
             type: boolean
       responses:
@@ -461,6 +470,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/UseCaseResponse'
+        400:
+          $ref: '#/components/responses/400BadRequest'
         401:
           $ref: '#/components/responses/401Unauthorised'
         403:
