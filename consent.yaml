@@ -447,7 +447,7 @@ paths:
       parameters:
         - name: active
           in: query
-          description: filter Use Cases by active status
+          description: toggle flag to only fetch active Use Cases
           required: false
           example: true
           default: false
