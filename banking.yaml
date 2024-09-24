@@ -2101,6 +2101,7 @@ components:
             - payeeId
             - domestic
             - biller
+            - digitalWallet
             - international
         accountId:
           type: string
@@ -2116,6 +2117,8 @@ components:
           $ref: '#/components/schemas/BankingDomesticPayee'
         biller:
           $ref: '#/components/schemas/BankingBillerPayee'
+        digitalWallet:
+          $ref: '#/components/schemas/BankingDigitalWalletPayee'
         international:
           $ref: '#/components/schemas/BankingInternationalPayee'
       description: Object containing details of the destination of the payment. Used to specify a variety of payment destination types
@@ -2124,6 +2127,7 @@ components:
         - payeeId
         - domestic
         - biller
+        - digitalWallet
         - international
     BankingScheduledPaymentFrom:
       type: object
