@@ -439,6 +439,7 @@ paths:
         ConsentUpdated:
           '{YourWebhookUrl}':
             post:
+              description: "{YourWebhookUrl} is your endpoint URL to receive Consent Events and it is configured during the Adatree onboarding process"
               requestBody:
                 content:
                   application/json:
