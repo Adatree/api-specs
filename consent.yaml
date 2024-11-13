@@ -532,17 +532,17 @@ paths:
           description: toggle flag to only fetch active Use Cases
           required: false
           example: true
-          default: false
           schema:
             type: boolean
+            default: false
         - name: combineScopes
           in: query
           description: Combine scopes that can be combined according to the CDR Consumer Experience Standards
           required: false
           example: true
-          default: false
           schema:
             type: boolean
+            default: false
       responses:
         200:
           description: successful response
