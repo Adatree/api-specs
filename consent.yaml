@@ -437,7 +437,7 @@ paths:
         - $ref: '#/components/parameters/QueryConsentEventType'
       callbacks:
         ConsentUpdated:
-          $YourWebhookUrl:
+          '{YourWebhookUrl}':
             post:
               requestBody:
                 content:
@@ -495,7 +495,7 @@ paths:
     post:
       deprecated: true
       summary: Create Tokens
-      description: | 
+      description: |
         Send the required parameters from the data holder to the ADR Platform backend to finish establishing data access
         This is deprecated, please use `patch /consents/{consentId}/authorization` instead
       security:
