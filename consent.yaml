@@ -682,7 +682,7 @@ components:
         customDataSchema:
           type: string
           description: Stringified JSON Schema for customData
-          example: {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"type\":\"object\",\"title\":\"custom data Schema\",\"description\":\"JSON schema of customer data\",\"purpose\":\"explain why custom data is needed\",\"properties\":{\"employerName\":{\"type\":\"string\",\"displayText\":\"Employer name\",\"uiComponent\":{\"inputType\":\"text\"},\"rules\":{\"required\":\"Employer name is required\"}}}}
+          example: "{\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"type\":\"object\",\"title\":\"custom data Schema\",\"description\":\"JSON schema of customer data\",\"purpose\":\"explain why custom data is needed\",\"properties\":{\"employerName\":{\"type\":\"string\",\"displayText\":\"Employer name\",\"uiComponent\":{\"inputType\":\"text\"},\"rules\":{\"required\":\"Employer name is required\"}}}}"
     DataHolder:
       required:
         - brandName
@@ -1159,7 +1159,7 @@ components:
         customDataSchema:
           type: string
           description: Stringified JSON Schema for customData
-          example: {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"type\":\"object\",\"title\":\"custom data Schema\",\"description\":\"JSON schema of customer data\",\"purpose\":\"explain why custom data is needed\",\"properties\":{\"employerName\":{\"type\":\"string\",\"displayText\":\"Employer name\",\"uiComponent\":{\"inputType\":\"text\"},\"rules\":{\"required\":\"Employer name is required\"}}}}
+          example: "{\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"type\":\"object\",\"title\":\"custom data Schema\",\"description\":\"JSON schema of customer data\",\"purpose\":\"explain why custom data is needed\",\"properties\":{\"employerName\":{\"type\":\"string\",\"displayText\":\"Employer name\",\"uiComponent\":{\"inputType\":\"text\"},\"rules\":{\"required\":\"Employer name is required\"}}}}"
     PasswordlessLoginLinkRequest:
       type: object
       required:
