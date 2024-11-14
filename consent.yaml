@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: Adatree ADR Platform Consent API
+  title: Adatree Consent API
   description: 'Consent Dashboard REST APIs. This allows ADR / consumers to perform CDR consumer authorization flow with Data Holders'
   contact:
     name: Adatree
@@ -332,9 +332,9 @@ paths:
     patch:
       summary: Activate consent with a response from the Data Holder
       description: |
-        At the completing of the consent process at a Data Holder, the consumer will be redirected back to the ADR system with a response JWT payload. 
-        This API takes that payload and exchanges it for a Refresh Token which is the final step in activating a consent.
-        This API replaces `post /tokens`
+        At the completing of the consent process at a Data Holder, the consumer will be redirected back to Adatree with a response JWT. 
+        This API takes that response JWT and exchanges it for a Refresh Token with the Data Holder, which finishes activating the consent.
+        This API replaces the deprecated endpoint `post /tokens`
       security:
         - bearerAuth: [ 'tokens:write' ]
         - m2m: [ 'tokens:write' ]
@@ -366,7 +366,9 @@ paths:
           $ref: '#/components/schemas/ConsentActivatedResponse'
     post:
       summary: Create an authorization link
-      description: Returns an authorization request URL to send the consumer to the data holder
+      description: | 
+        Returns an authorization request URL to send the consumer to the data holder
+        This API replaces the deprecated endpoint `get /consents/{consentId}/authorization` and can initiate either consent creation or consent extension processes
       security:
         - bearerAuth: [ 'consents:write' ]
         - m2m: [ 'consents:write' ]
