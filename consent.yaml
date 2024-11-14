@@ -771,10 +771,28 @@ components:
     ConsentAuthorization:
       type: object
       description: Authorization link for a Consent
+      required:
+        - success
       properties:
-        uri:
-          example: https://id.rab.sandbox.adatree.com.au/identity/authorization?response_type=code+id_token&client_id=abcdefg&request_uri=urn%3Aietf%3Aparams%3Aoauth%3Arequest_uri%3A-asdfasdfuhlkjshdf_akjsldflasjd&scope=openid+bank%3Aaccounts.basic%3Aread+bank%3Aaccounts.detail%3Aread+bank%3Atransactions%3Aread+common%3Acustomer.basic%3Aread
+        success:
+          type: boolean
+          description: indicates the outcome of the authorization request
+          example: true
+        adatreeErrorMessage:
           type: string
+          description: An Adatree provided message of what went wrong
+        dataHolderErrorMessage:
+          type: string
+          description: An indication of the error returned by the data holder
+        expiry:
+          type: string
+          format: date-time
+          description: DateTime of expiry of the authorization URI.
+          example: "2024-01-12T15:43:00.121Z"
+        uri:
+          type: string
+          description: uri to redirect the consumer to
+          example: https://id.rab.sandbox.adatree.com.au/identity/authorization?response_type=code+id_token&client_id=abcdefg&request_uri=urn%3Aietf%3Aparams%3Aoauth%3Arequest_uri%3A-asdfasdfuhlkjshdf_akjsldflasjd&scope=openid+bank%3Aaccounts.basic%3Aread+bank%3Aaccounts.detail%3Aread+bank%3Atransactions%3Aread+common%3Acustomer.basic%3Aread
     ConsentResponse:
       type: object
       properties:
