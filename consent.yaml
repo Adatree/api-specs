@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: Adatree ADR Platform Consent API
+  title: Adatree Consent API
   description: 'Consent Dashboard REST APIs. This allows ADR / consumers to perform CDR consumer authorization flow with Data Holders'
   contact:
     name: Adatree
@@ -282,8 +282,11 @@ paths:
           $ref: '#/components/responses/429RateLimited'
   /consents/{consentId}/authorization:
     get:
+      deprecated: true
       summary: Get Authorization Redirect URL for a Consent
-      description: Get the authorization redirect URL to send the consumer to the data holder
+      description: |
+        Get the authorization redirect URL to send the consumer to the data holder
+        This is deprecated, please use `post /consents/{consentId}/authorization` instead
       security:
         - bearerAuth: [ 'consumer:consents:read', 'consents:read' ]
         - m2m: [ 'consents:read' ]
@@ -326,6 +329,84 @@ paths:
           $ref: '#/components/responses/409Conflict'
         429:
           $ref: '#/components/responses/429RateLimited'
+    patch:
+      summary: Activate consent with a response from the Data Holder
+      description: |
+        At the completing of the consent process at a Data Holder, the consumer will be redirected back to Adatree with a response JWT. 
+        <br/>This API takes that response JWT and exchanges it for a Refresh Token with the Data Holder, which finishes activating the consent.
+        <br/>This API replaces the deprecated endpoint `post /tokens`
+      security:
+        - bearerAuth: [ 'tokens:write' ]
+        - m2m: [ 'tokens:write' ]
+      tags:
+        - Consent
+      operationId: completeDataHolderAuthorization
+      parameters:
+        - name: consentId
+          in: path
+          required: true
+          example: 148c9187-e52b-431f-9b24-7225e75ca2be
+          schema:
+            type: string
+        - $ref: '#/components/parameters/HeaderConsumerUserAgent'
+        - $ref: '#/components/parameters/HeaderConsumerIpAddress'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataHolderAuthorizationResponse'
+      responses:
+        201:
+          description: default response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentActivatedResponse'
+        424:
+          $ref: '#/components/schemas/ConsentActivatedResponse'
+    post:
+      summary: Create an authorization link
+      description: |
+        Returns an authorization request URL to send the consumer to the data holder.
+        <br/>This API replaces the deprecated endpoint `get /consents/{consentId}/authorization` and can initiate either consent creation or extension
+      security:
+        - bearerAuth: [ 'consents:write' ]
+        - m2m: [ 'consents:write' ]
+      tags:
+        - Consent
+      operationId: newAuthorizationForConsent
+      parameters:
+        - name: consentId
+          in: path
+          required: true
+          example: 148c9187-e52b-431f-9b24-7225e75ca2be
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConsentAuthorizationRequest'
+      responses:
+        200:
+          description: authorization link
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConsentAuthorization'
+        401:
+          $ref: '#/components/responses/401Unauthorised'
+        403:
+          $ref: '#/components/responses/403Forbidden'
+        404:
+          $ref: '#/components/responses/404NotFound'
+        409:
+          $ref: '#/components/responses/409Conflict'
+        424:
+          $ref: '#/components/schemas/ConsentAuthorization'
+        429:
+          $ref: '#/components/responses/429RateLimited'
+
   /consents/events:
     get:
       security:
@@ -358,8 +439,9 @@ paths:
         - $ref: '#/components/parameters/QueryConsentEventType'
       callbacks:
         ConsentUpdated:
-          $YourWebhookUrl:
+          '{YourWebhookUrl}':
             post:
+              description: "{YourWebhookUrl} is your endpoint URL to receive Consent Events and it is configured during the Adatree onboarding process"
               requestBody:
                 content:
                   application/json:
@@ -414,8 +496,11 @@ paths:
                   $ref: '#/components/schemas/DataHolder'
   /tokens:
     post:
+      deprecated: true
       summary: Create Tokens
-      description: Send the required parameters from the data holder to the ADR Platform backend to finish extablishing data access
+      description: |
+        Send the required parameters from the data holder to the ADR Platform backend to finish establishing data access
+        This is deprecated, please use `patch /consents/{consentId}/authorization` instead
       security:
         - bearerAuth: [ 'consumer:tokens:write', 'consumer_tokens_write', 'tokens:write', 'tokens_write' ]
         - m2m: [ 'tokens:write' ]
@@ -450,17 +535,17 @@ paths:
           description: toggle flag to only fetch active Use Cases
           required: false
           example: true
-          default: false
           schema:
             type: boolean
+            default: false
         - name: combineScopes
           in: query
           description: Combine scopes that can be combined according to the CDR Consumer Experience Standards
           required: false
           example: true
-          default: false
           schema:
             type: boolean
+            default: false
       responses:
         200:
           description: successful response
@@ -600,7 +685,7 @@ components:
         customDataSchema:
           type: string
           description: Stringified JSON Schema for customData
-          example: {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"type\":\"object\",\"title\":\"custom data Schema\",\"description\":\"JSON schema of customer data\",\"purpose\":\"explain why custom data is needed\",\"properties\":{\"employerName\":{\"type\":\"string\",\"displayText\":\"Employer name\",\"uiComponent\":{\"inputType\":\"text\"},\"rules\":{\"required\":\"Employer name is required\"}}}}
+          example: "{\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"type\":\"object\",\"title\":\"custom data Schema\",\"description\":\"JSON schema of customer data\",\"purpose\":\"explain why custom data is needed\",\"properties\":{\"employerName\":{\"type\":\"string\",\"displayText\":\"Employer name\",\"uiComponent\":{\"inputType\":\"text\"},\"rules\":{\"required\":\"Employer name is required\"}}}}"
     DataHolder:
       required:
         - brandName
@@ -906,6 +991,66 @@ components:
           $ref: '#/components/schemas/LinksPaginated'
         meta:
           $ref: '#/components/schemas/MetaPaginated'
+    ConsentAuthorizationRequest:
+      title: ConsentAuthorizationRequest
+      type: object
+      properties:
+        state:
+          type: string
+          description: 'A state is generated by the consent user-agent (browser) and is used to bind the redirection response from a Data Holder with a user session as per https://openid.net/specs/openid-financial-api-part-1-1_0-final.html#public-client. It is sent in the authentication request, and is then also included redirect from the ADH to the ADR. This allows the ADR client application prevent CSRF attacks. Must be unique per authorization request.'
+        redirectUri:
+          type: string
+          description: The URI to redirect to from the data holder when the consumer has finished data holder authentication. Must be from the list of redirect URIs configured at the ACCC register.
+        sharingEndDate:
+          type: string
+          description: 'Date/time of the consent expiry. For new consents, it''s a consent expiry. For existing consents, it''s the target consent extension date/time.'
+          format: date-time
+      required:
+        - consentId
+        - state
+        - redirectUri
+        - sharingEndDate
+    DataHolderAuthorizationResponse:
+      type: object
+      properties:
+        response:
+          type: string
+          description: response payload from the Dataholder after a successful consent
+          example: eyJraWQiOiIxZTlnZGs3IiwiYWxnIjoiUl...
+    ConsentActivatedResponse:
+      type: object
+      required:
+        - success
+      properties:
+        success:
+          type: boolean
+          description: indicates the outcome of the authorization request
+          example: true
+        activeConsentId:
+          type: string
+          description: Identifier of the consent which has now been activated by the completion of the Authorization flow.
+        state:
+          type: string
+          description: The original OAuth 2.0 state parameter that is provided as part of the authorization process
+        adatreeErrorMessage:
+          type: string
+          description: An Adatree provided message of what went wrong
+        dataHolderErrorMessage:
+          type: string
+          description: An indication of the error returned by the data holder
+        dataHolderErrorDescription:
+          type: string
+          description: An detailed error description returned by the data holder
+        errorCode:
+          type: string
+          description: the type of error identified
+        retryableUntil:
+          type: string
+          format: date-time
+          description: |
+            The expiry (exp) claim of the provided response JWT. 
+            If the provided JWT is valid, this request should be retryable until the JWT expires as this JWT 
+            represents an activation of a consent at a Data Holder
     Grantee:
       type: object
       description: a grantee that will access CDR data. Specific configuration is required to support Grantee.
@@ -1017,7 +1162,7 @@ components:
         customDataSchema:
           type: string
           description: Stringified JSON Schema for customData
-          example: {\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"type\":\"object\",\"title\":\"custom data Schema\",\"description\":\"JSON schema of customer data\",\"purpose\":\"explain why custom data is needed\",\"properties\":{\"employerName\":{\"type\":\"string\",\"displayText\":\"Employer name\",\"uiComponent\":{\"inputType\":\"text\"},\"rules\":{\"required\":\"Employer name is required\"}}}}
+          example: "{\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"type\":\"object\",\"title\":\"custom data Schema\",\"description\":\"JSON schema of customer data\",\"purpose\":\"explain why custom data is needed\",\"properties\":{\"employerName\":{\"type\":\"string\",\"displayText\":\"Employer name\",\"uiComponent\":{\"inputType\":\"text\"},\"rules\":{\"required\":\"Employer name is required\"}}}}"
     PasswordlessLoginLinkRequest:
       type: object
       required:
