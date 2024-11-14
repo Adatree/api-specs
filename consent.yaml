@@ -339,7 +339,7 @@ paths:
         - bearerAuth: [ 'tokens:write' ]
         - m2m: [ 'tokens:write' ]
       tags:
-        - Consent
+        - Consent Authorization
       operationId: completeDataHolderAuthorization
       parameters:
         - name: consentId
@@ -373,7 +373,7 @@ paths:
         - bearerAuth: [ 'consents:write' ]
         - m2m: [ 'consents:write' ]
       tags:
-        - Consent
+        - Consent Authorization
       operationId: newAuthorizationForConsent
       parameters:
         - name: consentId
