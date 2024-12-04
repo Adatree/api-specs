@@ -1351,13 +1351,13 @@ components:
           schema:
             $ref: '#/components/schemas/ResponseErrorList'
     424ConsentAuthorisation:
-      description: authorization link
+      description: consent authorization failure
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ConsentAuthorization'
     424ConsentActivatedResponse:
-      description: authorization link
+      description: consent activation failure
       content:
         application/json:
           schema:
