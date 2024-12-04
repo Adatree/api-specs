@@ -353,7 +353,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ConsentActivatedResponse'
         424:
-          $ref: '#/components/schemas/ConsentActivatedResponse'
+          $ref: '#/components/responses/424ConsentActivatedResponse'
     post:
       summary: Create an authorization link
       description: |
@@ -386,7 +386,7 @@ paths:
         409:
           $ref: '#/components/responses/409Conflict'
         424:
-          $ref: '#/components/schemas/ConsentAuthorization'
+          $ref: '#/components/responses/424ConsentAuthorization'
         429:
           $ref: '#/components/responses/429RateLimited'
 
@@ -1352,6 +1352,18 @@ components:
             $ref: '#/components/schemas/ResponseErrorList'
     429RateLimited:
       description: Ratelimit reached
+    424ConsentAuthorisation:
+      description: authorization link
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConsentAuthorization'
+    424ConsentActivatedResponse:
+      description: authorization link
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ConsentActivatedResponse'
     GenericError:
       description: An error occurred.
       content:
