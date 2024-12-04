@@ -1350,8 +1350,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ResponseErrorList'
-    429RateLimited:
-      description: Ratelimit reached
     424ConsentAuthorisation:
       description: authorization link
       content:
@@ -1364,6 +1362,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ConsentActivatedResponse'
+    429RateLimited:
+      description: Ratelimit reached
     GenericError:
       description: An error occurred.
       content:
