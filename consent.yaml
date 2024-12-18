@@ -310,7 +310,7 @@ paths:
             type: string
       responses:
         200:
-          description: authorization link
+          description: Consent activation authorization link
           content:
             application/json:
               schema:
@@ -346,12 +346,14 @@ paths:
             schema:
               $ref: '#/components/schemas/DataHolderAuthorizationResponse'
       responses:
-        201:
-          description: default response
+        200:
+          description: Successful consent activation
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ConsentActivatedResponse'
+        400:
+          $ref: '#/components/responses/400BadRequest'
         424:
           $ref: '#/components/responses/424ConsentActivatedResponse'
     post:
@@ -562,7 +564,7 @@ paths:
               $ref: '#/components/schemas/PasswordlessLoginLinkRequest'
       responses:
         201:
-          description: Successful response
+          description: Successful creation of passwordless login link
           content:
             application/json:
               schema:
@@ -588,8 +590,8 @@ components:
         clientCredentials:
           tokenUrl: https://adatree-nonprod-adr.auth.ap-southeast-2.amazoncognito.com/oauth2/token
           scopes:
-            'authorizations:write': allow ADR to create a Authorisation Request for a consumer
-            'tokens:write': allow ADR to create or update Authorisation Request
+            'authorizations:write': allow ADR to create a Authorization Request for a consumer
+            'tokens:write': allow ADR to create or update Authorization Request
   schemas:
     Authorization:
       type: object
@@ -761,6 +763,7 @@ components:
           type: boolean
           description: indicates the outcome of the authorization request
           example: true
+          deprecated: true
         adatreeErrorMessage:
           type: string
           description: An Adatree provided message of what went wrong
@@ -1050,7 +1053,7 @@ components:
           format: date-time
           description: |
             The expiry (exp) claim of the provided response JWT. 
-            If the provided JWT is valid, this request should be retryable until the JWT expires as this JWT 
+            If the provided JWT is valid, this request should be retry-able until the JWT expires as this JWT 
             represents an activation of a consent at a Data Holder
     Grantee:
       type: object
@@ -1332,25 +1335,25 @@ components:
   # Reusable responses
   #-------------------------------
   responses:
-    401Unauthorised:
-      description: Unauthorised
-    403Forbidden:
-      description: Forbidden
-    404NotFound:
-      description: The specified resource was not found.
     400BadRequest:
       description: Request is invalid
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ResponseErrorList'
+    401Unauthorised:
+      description: Unauthorised
+    403Forbidden:
+      description: Forbidden
+    404NotFound:
+      description: The specified resource was not found.
     409Conflict:
       description: Request cannot be processed
       content:
         application/json:
           schema:
             $ref: '#/components/schemas/ResponseErrorList'
-    424ConsentAuthorisation:
+    424ConsentAuthorization:
       description: consent authorization failure
       content:
         application/json:
