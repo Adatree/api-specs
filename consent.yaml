@@ -711,7 +711,7 @@ paths:
         - m2m: ['data-holders:read']
       tags:
         - Data Holders
-      operationId: get data holders of a software product
+      operationId: getDataHolders
       parameters:
         - name: softwareProductId
           description: |
@@ -1709,5 +1709,5 @@ components:
         type: array
         items:
           $ref: '#/components/schemas/ConsentEventType'
-        example: 'WEBHOOK_SENDING_FAILED,WEBHOOK_SENDING_FAILED_CLIENT_ERROR'
+        example: [ "WEBHOOK_SENDING_FAILED","WEBHOOK_SENDING_FAILED_CLIENT_ERROR" ]
       description: Consent event types to be returned
