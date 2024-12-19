@@ -211,18 +211,6 @@ paths:
           required: false
           schema:
             type: string
-        - name: consentId
-          in: query
-          example: 148c9187-e52b-431f-9b24-7225e75ca2be
-          required: false
-          schema:
-            type: string
-        - name: cdrArrangementId
-          in: query
-          example: 45db4977-b12f-42bf-808d-2680eb4bd366
-          required: false
-          schema:
-            type: string
         - name: status
           in: query
           required: false
@@ -334,7 +322,17 @@ paths:
           schema:
             type: string
         - $ref: '#/components/parameters/ParamPage'
-        - $ref: '#/components/parameters/QueryParamPageSize'
+        - name: pageSize
+          in: query
+          required: false
+          schema:
+          type: integer
+          minimum: 1
+          default: 1000
+          example: 1000
+          description: Page size to request. Default is 1000
+        - $ref: '#/components/parameters/ParamConsentId'
+        - $ref: '#/components/parameters/ParamCdrArrangementId'
       responses:
         '200':
           description: successful response
@@ -1713,13 +1711,3 @@ components:
           $ref: '#/components/schemas/ConsentEventType'
         example: 'WEBHOOK_SENDING_FAILED,WEBHOOK_SENDING_FAILED_CLIENT_ERROR'
       description: Consent event types to be returned
-    QueryParamPageSize:
-      name: pageSize
-      in: query
-      required: false
-      schema:
-        type: integer
-        minimum: 1
-        default: 1000
-        example: 1000
-      description: Page size to request. Default is 1000
