@@ -391,7 +391,7 @@ paths:
                               accreditationId: ADRBNK000071
                               cdrPolicyUri: 'https://adatree.com.au/cdr-policy'
                           consumerType: INDIVIDUAL
-                          customDataSchema:
+                          customDataSchema: |
                             $schema: 'https://json-schema.org/draft/2019-09/schema'
                             type: object
                             title: custom data Schema
