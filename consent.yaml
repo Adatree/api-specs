@@ -12,6 +12,7 @@ servers:
 paths:
   /consents:
     get:
+      deprecated: true
       security:
         - bearerAuth: [ 'consumer:consents:read', 'consents:read' ]
         - m2m: [ 'consents:read' ]
