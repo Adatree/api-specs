@@ -326,11 +326,11 @@ paths:
           in: query
           required: false
           schema:
-          type: integer
-          minimum: 1
-          default: 1000
-          example: 1000
-          description: Page size to request. Default is 1000
+            type: integer
+            minimum: 1
+            default: 1000
+            example: 1000
+            description: Page size to request. Default is 1000
         - $ref: '#/components/parameters/ParamConsentId'
         - $ref: '#/components/parameters/ParamCdrArrangementId'
       responses:
