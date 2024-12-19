@@ -19,7 +19,7 @@ paths:
       tags:
         - Consent
       summary: Get Consents
-      description: Get all consent records for this consumer
+      description: Get all consent records for this consumer. Deprecated, please use get `/consents/v2`
       operationId: findAllConsents
       parameters:
         - name: consumerId
