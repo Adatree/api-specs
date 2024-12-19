@@ -12,13 +12,14 @@ servers:
 paths:
   /consents:
     get:
+      deprecated: true
       security:
         - bearerAuth: [ 'consumer:consents:read', 'consents:read' ]
         - m2m: [ 'consents:read' ]
       tags:
         - Consent
       summary: Get Consents
-      description: Get all consent records for this consumer
+      description: Get all consent records for this consumer. Deprecated, please use get `/consents/v2`
       operationId: findAllConsents
       parameters:
         - name: consumerId
