@@ -971,11 +971,6 @@ components:
         directMarketingAllowed:
           type: boolean
           example: true
-        sharingEndDate:
-          type: string
-          description: new sharing end date, will be validated against sharing duration options defined in chosen Use Case
-          format: date-time
-          example: "2023-04-19T15:43:00.121Z"
     UpdateConsentMachine:
       type: object
       properties:
