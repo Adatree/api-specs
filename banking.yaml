@@ -574,58 +574,6 @@ paths:
           $ref: '#/components/responses/404NotFound'
         429:
           $ref: '#/components/responses/429RateLimited'
-  /adr/discovery/status:
-    get:
-      tags:
-        - DataHolderDiscovery
-      summary: Get Status
-      description: Obtain a health check status for the implementation
-      operationId: getStatus
-      parameters:
-        - $ref: '#/components/parameters/ParamDataHolderIds'
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponseCommonDiscoveryStatus'
-        400:
-          $ref: '#/components/responses/400BadRequest'
-        401:
-          $ref: '#/components/responses/401Unauthorised'
-        403:
-          $ref: '#/components/responses/403Forbidden'
-        404:
-          $ref: '#/components/responses/404NotFound'
-        429:
-          $ref: '#/components/responses/429RateLimited'
-  /adr/discovery/outages:
-    get:
-      tags:
-        - DataHolderDiscovery
-      summary: Get Outages
-      description: Obtain a list of scheduled outages for the implementation
-      operationId: getOutages
-      parameters:
-        - $ref: '#/components/parameters/ParamDataHolderIds'
-      responses:
-        200:
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ResponseDiscoveryOutagesList'
-        400:
-          $ref: '#/components/responses/400BadRequest'
-        401:
-          $ref: '#/components/responses/401Unauthorised'
-        403:
-          $ref: '#/components/responses/403Forbidden'
-        404:
-          $ref: '#/components/responses/404NotFound'
-        429:
-          $ref: '#/components/responses/429RateLimited'
 components:
   securitySchemes:
     bearerAuth:
