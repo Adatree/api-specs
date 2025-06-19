@@ -478,8 +478,8 @@ paths:
         - Consent
       summary: Update a consent's via dashboard or back channel
       description: |
-        <ul><li>Update postUsageAction, directMarketing option or sharing end date when a dashboard token is received</li><br/>
-        <li>Update externalId when a machine (backchannel) token is received</li></ul>
+        <ul><li>Update postUsageAction and directMarketing option when a dashboard token is received</li><br/>
+        <li>Update externalId when a machine (back-channel) token is received</li></ul>
       operationId: updateConsent
       parameters:
         - name: consentId
