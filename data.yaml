@@ -7,7 +7,7 @@ info:
     name: Adatree Pty Ltd
     url: https://adatree.com.au
     email: engineering@adatree.com.au
-  version: "1.1.0"
+  version: "1.2.0"
 servers:
   - url: https://cdr-insights-prod.api.adatree.com.au
 paths:
@@ -324,6 +324,40 @@ paths:
             'application/json':
               schema:
                 $ref: '#/components/schemas/EnergyAccountList'
+        400:
+          $ref: '#/components/responses/400BadRequest'
+        401:
+          $ref: '#/components/responses/401Unauthorised'
+        403:
+          $ref: '#/components/responses/403Forbidden'
+        429:
+          $ref: '#/components/responses/429RateLimited'
+  /data/v2/energy/accounts:
+    get:
+      security:
+        - bearerAuth: [ 'data:energy:accounts:read' ]
+      tags:
+        - Energy
+      summary: Get Energy Accounts
+      description: |-
+        Obtain the list of energy accounts that consumers have consented to share across all data holders
+      operationId: getEnergyAccountsV2
+      parameters:
+        - $ref: '#/components/parameters/QueryUseCaseIds'
+        - $ref: '#/components/parameters/QueryCdrArrangementIds'
+        - $ref: '#/components/parameters/QueryConsentIds'
+        - $ref: '#/components/parameters/QueryConsumerIds'
+        - $ref: '#/components/parameters/QueryAccountIds'
+        - $ref: '#/components/parameters/QueryDataHolderBrandIds'
+        - $ref: '#/components/parameters/QueryPage'
+        - $ref: '#/components/parameters/QueryPageSize'
+      responses:
+        200:
+          description: Success
+          content:
+            'application/json':
+              schema:
+                $ref: '#/components/schemas/EnergyAccountListV2'
         400:
           $ref: '#/components/responses/400BadRequest'
         401:
@@ -892,6 +926,16 @@ components:
           description: The list of energy accounts returned. If the filter results in an empty set then this array may have no records
           items:
             $ref: '#/components/schemas/EnergyAccountDetailV2'
+    EnergyAccountListV2_data:
+      type: object
+      required:
+        - accounts
+      properties:
+        accounts:
+          type: array
+          description: The list of energy accounts returned. If the filter results in an empty set then this array may have no records
+          items:
+            $ref: '#/components/schemas/EnergyAccountDetailV3'
 
     #-------------------------------
     # Banking Schema Definitions
@@ -2248,9 +2292,12 @@ components:
           enum:
             - MIN_BALANCE
             - MIN_LIMIT
+            - MIN_LVR
             - MAX_BALANCE
+            - MAX_LVR
             - MAX_LIMIT
             - OPENING_BALANCE
+            - OTHER
         additionalValue:
           type: string
           description: Generic field containing additional information relevant to the [constraintType](#tocSproductconstrainttypedoc) specified.  Whether mandatory or not is dependent on the value of [constraintType](#tocSproductconstrainttypedoc)
@@ -3006,6 +3053,19 @@ components:
         - links
         - meta
       type: object
+    EnergyPlanListV2:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/EnergyPlanList_dataV2'
+        links:
+          $ref: '#/components/schemas/LinksPaginated'
+        meta:
+          $ref: '#/components/schemas/MetaPaginated'
+      required:
+        - data
+        - links
+        - meta
     EnergyServicePointList:
       properties:
         data:
@@ -3129,6 +3189,10 @@ components:
       allOf:
         - $ref: '#/components/schemas/EnergyPlan'
         - $ref: '#/components/schemas/EnergyPlanDetail_allOf'
+    EnergyPlanDetailV2:
+      allOf:
+        - $ref: '#/components/schemas/EnergyPlan'
+        - $ref: '#/components/schemas/EnergyPlanDetail_allOfV2'
     EnergyPlanContract:
       properties:
         additionalFeeInformation:
@@ -3678,6 +3742,8 @@ components:
                 description: The applicable scheme
                 enum:
                   - PREMIUM
+                  - CURRENT
+                  - VARIABLE
                   - OTHER
                 type: string
               payerType:
@@ -3730,6 +3796,10 @@ components:
                         - unitPrice
                       type: object
                     type: array
+                  period:
+                    description: Usage period for which the block rate applies. Defaults to P1Y if absent.
+                      This will be the tariff representation returned by data holders that support EnergyAccountDetailV4.
+                    type: string
                 type: object
               timeVaryingTariffs:
                 description: Represents a tariff based on time.  Mandatory if tariffUType
@@ -3742,6 +3812,9 @@ components:
                       - PEAK
                       - OFF_PEAK
                       - SHOULDER
+                    type: string
+                  displayName:
+                    description: Display name of the tariff
                     type: string
                   amount:
                     description: The tariff amount
@@ -3810,7 +3883,12 @@ components:
                         - days
                       type: object
                     type: array
+                  period:
+                    description: Usage period for which the block rate applies. Defaults to P1Y if absent.
+                      This will be the tariff representation returned by data holders support EnergyAccountDetailV4.
+                    type: string
                 required:
+                  - displayName
                   - timeVariations
                 type: object
             required:
@@ -3849,6 +3927,45 @@ components:
                 description: The end date of the tariff period in a calendar year.  Formatted
                   in mm-dd format
                 type: string
+              dailySupplyChargeType:
+                description: Specifies if daily supply charge is single or banded.
+                  Default value is SINGLE if field not provided. This is for EnergyAccountDetailV4.
+                enum:
+                  - SINGLE
+                  - BAND
+                type: string
+              dailySupplyCharge:
+                description: The amount of access charge for the tariff period, in
+                  dollars per day exclusive of GST. Mandatory if dailySupplyChargeType is SINGLE.
+                  This is for EnergyAccountDetailV4.
+                type: string
+              bandedDailySupplyCharges:
+                description: Array representing banded daily supply charge rates.
+                  Mandatory if dailySupplyChargeType is BAND. This is for EnergyAccountDetailV4.
+                items:
+                  properties:
+                    unitPrice:
+                      description: The amount of daily supply charge for the band, in dollars per day exclusive of GST.
+                      type: string
+                    measureUnit:
+                      description: The measurement unit of rate. Assumed to be DAYS if absent
+                      enum:
+                        - KWH
+                        - KVA
+                        - KVAR
+                        - KVARH
+                        - KW
+                        - DAYS
+                        - METER
+                        - MONTH
+                      type: string
+                    volume:
+                      description: Volume the charge applies to
+                      type: number
+                  required:
+                    - unitPrice
+                  type: object
+                type: array
               dailySupplyCharges:
                 description: The amount of access charge for the tariff period, in
                   dollars per day exclusive of GST.
@@ -3968,6 +4085,10 @@ components:
                           - unitPrice
                         type: object
                       type: array
+                    period:
+                      description: Usage period for which the block rate applies. Defaults to P1Y if absent.
+                        This will be the tariff representation returned by data holders support EnergyAccountDetailV4.
+                      type: string
                     timeOfUse:
                       description: Array of times of use
                       items:
@@ -4103,6 +4224,8 @@ components:
               - singleRate
               - timeOfUseRates
               - demandCharges
+              - dailySupplyCharge
+              - bandedDailySupplyCharges
           type: array
       required:
         - isFixed
@@ -4118,6 +4241,186 @@ components:
       allOf:
         - $ref: '#/components/schemas/EnergyPlanContract'
         - $ref: '#/components/schemas/EnergyPlanContractFull_allOf'
+    EnergyPlanContractFullV2:
+      allOf:
+        - $ref: '#/components/schemas/EnergyPlanContractV2'
+        - $ref: '#/components/schemas/EnergyPlanContractFull_allOf'
+    EnergyPlanContractV2:
+      allOf:
+        - $ref: '#/components/schemas/EnergyPlanContract'
+        - type: object
+          properties:
+            solarFeedInTariff:
+              type: array
+              description: "Array of solar feed-in tariffs (v2 schema: timeVaryingTariffs is an array)"
+              items:
+                $ref: '#/components/schemas/SolarFeedInTariffV2'
+    SolarFeedInTariffV2:
+      type: object
+      properties:
+        displayName:
+          description: The name of the tariff
+          type: string
+        description:
+          description: A description of the tariff
+          type: string
+        startDate:
+          description: The start date of the application of the feed in tariff
+          type: string
+        endDate:
+          description: The end date of the application of the feed in tariff
+          type: string
+        scheme:
+          description: The applicable scheme
+          enum:
+            - PREMIUM
+            - CURRENT
+            - VARIABLE
+            - OTHER
+          type: string
+        payerType:
+          description: The type of the payer
+          enum:
+            - GOVERNMENT
+            - RETAILER
+          type: string
+        tariffUType:
+          description: The type of the payer
+          enum:
+            - singleTariff
+            - timeVaryingTariffs
+          type: string
+        singleTariff:
+          description: Represents a constant tariff.  Mandatory if tariffUType is set to singleTariff
+          type: object
+          properties:
+            amount:
+              description: The tariff amount. This will be the tariff representation returned by data holders support EnergyAccountDetailV2.
+              type: string
+            rates:
+              description: Array of feed in rates. This will be the tariff representation returned by data holders support EnergyAccountDetailV3.
+              type: array
+              items:
+                type: object
+                properties:
+                  unitPrice:
+                    description: Unit price of usage per measure unit (exclusive of GST)
+                    type: string
+                  measureUnit:
+                    description: The measurement unit of rate. Assumed to be KWH if absent
+                    enum:
+                      - KWH
+                      - KVA
+                      - KVAR
+                      - KVARH
+                      - KW
+                      - DAYS
+                      - METER
+                      - MONTH
+                    type: string
+                  volume:
+                    description: Volume that this rate applies to. Only applicable for ‘stepped’ rates where different rates apply for different volumes of usage in a period
+                    type: number
+                required:
+                  - unitPrice
+            period:
+              description: Usage period for which the block rate applies. Defaults to P1Y if absent. This will be the tariff representation returned by data holders that support EnergyAccountDetailV4.
+              type: string
+        timeVaryingTariffs:
+          description: "v2: Represents a tariff based on time. Mandatory if tariffUType is set to timeVaryingTariffs. NOTE: v2 makes this an array."
+          type: array
+          items:
+            $ref: '#/components/schemas/EnergyPlanContractTimeVaryingTariffV2'
+      required:
+        - displayName
+        - payerType
+        - scheme
+        - tariffUType
+    EnergyPlanContractTimeVaryingTariffV2:
+      type: object
+      properties:
+        type:
+          description: The type of the charging time period. If absent applies
+            to all periods
+          enum:
+            - PEAK
+            - OFF_PEAK
+            - SHOULDER
+          type: string
+        displayName:
+          description: Display name of the tariff
+          type: string
+        amount:
+          description: The tariff amount
+          type: string
+        rates:
+          description: Array of feed in rates. This will be the tariff representation returned by data holders support EnergyAccountDetailV3.
+          items:
+            properties:
+              unitPrice:
+                description: Unit price of usage per measure unit (exclusive
+                  of GST)
+                type: string
+              measureUnit:
+                description: The measurement unit of rate. Assumed to be
+                  KWH if absent
+                enum:
+                  - KWH
+                  - KVA
+                  - KVAR
+                  - KVARH
+                  - KW
+                  - DAYS
+                  - METER
+                  - MONTH
+                type: string
+              volume:
+                description: Volume that this rate applies to. Only applicable
+                  for ‘stepped’ rates where different rates apply for different
+                  volumes of usage in a period
+                type: number
+            required:
+              - unitPrice
+            type: object
+          type: array
+        timeVariations:
+          description: Array of time periods for which this tariff is applicable
+          items:
+            properties:
+              days:
+                description: The days that the tariff applies to. At least
+                  one entry required
+                items:
+                  enum:
+                    - SUN
+                    - MON
+                    - TUE
+                    - WED
+                    - THU
+                    - FRI
+                    - SAT
+                    - PUBLIC_HOLIDAYS
+                  type: string
+                type: array
+              startTime:
+                description: The beginning of the time period per day for
+                  which the tariff applies.  If absent assumes start of
+                  day (ie. midnight)
+                type: string
+              endTime:
+                description: The end of the time period per day for which
+                  the tariff applies.  If absent assumes end of day (ie.
+                  one second before midnight)
+                type: string
+            required:
+              - days
+            type: object
+          type: array
+        period:
+          description: Usage period for which the block rate applies. Defaults to P1Y if absent.
+            This will be the tariff representation returned by data holders support EnergyAccountDetailV4.
+          type: string
+      required: [displayName, timeVariations]
     EnergyServicePoint:
       properties:
         servicePointId:
@@ -4453,6 +4756,10 @@ components:
       allOf:
         - $ref: '#/components/schemas/EnergyAccountBaseV2'
         - $ref: '#/components/schemas/EnergyAccountDetailV2_allOf'
+    EnergyAccountDetailV3:
+      allOf:
+        - $ref: '#/components/schemas/EnergyAccountBaseV2'
+        - $ref: '#/components/schemas/EnergyAccountDetailV3_allOf'
     EnergyPaymentSchedule:
       properties:
         amount:
@@ -4998,6 +5305,16 @@ components:
       required:
         - plans
       type: object
+    EnergyPlanList_dataV2:
+      type: object
+      properties:
+        plans:
+          description: Array of plans (v2 schema)
+          type: array
+          items:
+            $ref: '#/components/schemas/EnergyPlanDetailV2'
+      required:
+        - plans
     EnergyServicePointList_data:
       properties:
         servicePoints:
@@ -5190,6 +5507,18 @@ components:
       x-conditional:
         - gasContract
         - electricityContract
+    EnergyPlanDetail_allOfV2:
+      type: object
+      properties:
+        meteringCharges:
+          description: Charges for metering included in the plan
+          items:
+            $ref: '#/components/schemas/EnergyPlanDetail_allOf_meteringCharges'
+          type: array
+        electricityContract:
+          $ref: '#/components/schemas/EnergyPlanContractFullV2'
+        gasContract:
+          $ref: '#/components/schemas/EnergyPlanContractFullV2'
     EnergyPlanContract_intrinsicGreenPower:
       description: Describes intrinsic green power for the plan.  If present then
         the plan includes a percentage of green power in the base plan. Should not
@@ -5806,6 +6135,33 @@ components:
       x-conditional:
         - gasContract
         - electricityContract
+    EnergyAccountDetailV3_allOf_planDetail:
+      description: "Detail on the plan applicable to this account. Mandatory if openStatus is OPEN. **v2 update: Contracts updated to V2 schemas**."
+      properties:
+        fuelType:
+          description: The fuel types covered by the plan
+          enum:
+            - ELECTRICITY
+            - GAS
+            - DUAL
+          type: string
+        isContingentPlan:
+          description: Flag indicating the plan is contingent on an alternate fuel plan from the same retailer (e.g., if fuelType is ELECTRICITY, a GAS plan must be taken up). No meaning if fuelType is DUAL. Assumed false if absent.
+          type: boolean
+        meteringCharges:
+          description: Charges for metering included in the plan
+          type: array
+          items:
+            $ref: '#/components/schemas/EnergyPlanDetail_allOf_meteringCharges'
+        gasContract:
+          description: "v2: Updated Gas Contract details"
+          $ref: '#/components/schemas/EnergyPlanContractV2'
+        electricityContract:
+          description: "v2: Updated Electricity Contract details"
+          $ref: '#/components/schemas/EnergyPlanContractV2'
+      required:
+        - fuelType
+      type: object
     EnergyAccountDetailV2_allOf_authorisedContacts:
       properties:
         firstName:
@@ -5859,6 +6215,28 @@ components:
       x-conditional:
         - planOverview
         - planDetail
+    EnergyAccountDetailV3_allOf_plans:
+      type: object
+      properties:
+        nickname:
+          description: Optional display name for the plan provided by the customer to help differentiate multiple plans
+          type: string
+        servicePointIds:
+          description: An array of servicePointIds, representing NMIs, that this account is linked to
+          type: array
+          items:
+            type: string
+        planOverview:
+          $ref: '#/components/schemas/EnergyAccountV2_allOf_planOverview'
+        planDetail:
+          $ref: '#/components/schemas/EnergyAccountDetailV3_allOf_planDetail'
+        authorisedContacts:
+          description: An array of additional contacts that are authorised to act on this account
+          type: array
+          items:
+            $ref: '#/components/schemas/EnergyAccountDetailV2_allOf_authorisedContacts'
+      required:
+        - servicePointIds
     EnergyAccountDetailV2_allOf:
       description: The array of plans containing service points and associated plan details
       properties:
@@ -5888,6 +6266,32 @@ components:
       required:
         - adatree
       type: object
+    EnergyAccountDetailV3_allOf:
+      description: 'The array of plans containing service points and associated plan details (v2 schema: plans use V2 blocks)'
+      type: object
+      properties:
+        balance:
+          description: The current balance of the account. A positive value indicates that amount is owing to be paid. A negative value indicates that the account is in credit
+          type: string
+        plans:
+          description: The array of plans containing service points and associated plan details
+          type: array
+          items:
+            $ref: '#/components/schemas/EnergyAccountDetailV3_allOf_plans'
+        paymentSchedules:
+          description: The array of agreed payment schedules
+          type: array
+          items:
+            $ref: '#/components/schemas/EnergyPaymentSchedule'
+        concessions:
+          description: Array may be empty if no concessions exist
+          type: array
+          items:
+            $ref: '#/components/schemas/EnergyConcession'
+        adatree:
+          $ref: '#/components/schemas/Adatree'
+      required:
+        - adatree
     EnergyPaymentSchedule_cardDebit:
       description: Represents a regular credit card payment schedule. Mandatory if
         paymentScheduleUType is set to cardDebit
