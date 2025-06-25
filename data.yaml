@@ -7,7 +7,7 @@ info:
     name: Adatree Pty Ltd
     url: https://adatree.com.au
     email: engineering@adatree.com.au
-  version: "1.1.0"
+  version: "1.2.0"
 servers:
   - url: https://cdr-insights-prod.api.adatree.com.au
 paths:
