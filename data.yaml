@@ -7,7 +7,7 @@ info:
     name: Adatree Pty Ltd
     url: https://adatree.com.au
     email: engineering@adatree.com.au
-  version: "1.2.0"
+  version: "1.3.0"
 servers:
   - url: https://cdr-insights-prod.api.adatree.com.au
 paths:
@@ -256,40 +256,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ResponseCommonCustomerList'
-        400:
-          $ref: '#/components/responses/400BadRequest'
-        401:
-          $ref: '#/components/responses/401Unauthorised'
-        403:
-          $ref: '#/components/responses/403Forbidden'
-        429:
-          $ref: '#/components/responses/429RateLimited'
-  /data/energy/plans:
-    get:
-      security:
-        - bearerAuth: [ 'data:energy:plans:read' ]
-      tags:
-        - Energy
-      summary: Get Energy Plans
-      description: |-
-        Obtain the list of energy plans across all data holders
-      operationId: getEnergyPlans
-      parameters:
-        - $ref: '#/components/parameters/QueryPlanIds'
-        - $ref: '#/components/parameters/QueryPlanTypes'
-        - $ref: '#/components/parameters/QueryPlanFuelTypes'
-        - $ref: '#/components/parameters/QueryPlanEffective'
-        - $ref: '#/components/parameters/QueryPlanUpdatedSince'
-        - $ref: '#/components/parameters/QueryDataHolderBrandIds'
-        - $ref: '#/components/parameters/QueryPage'
-        - $ref: '#/components/parameters/QueryPageSize'
-      responses:
-        200:
-          description: Success
-          content:
-            'application/json':
-              schema:
-                $ref: '#/components/schemas/EnergyPlanList'
         400:
           $ref: '#/components/responses/400BadRequest'
         401:
@@ -913,6 +879,19 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/EnergyAccountList_data'
+        links:
+          $ref: '#/components/schemas/LinksPaginated'
+        meta:
+          $ref: '#/components/schemas/MetaPaginated'
+    EnergyAccountListV2:
+      type: object
+      required:
+        - data
+        - links
+        - meta
+      properties:
+        data:
+          $ref: '#/components/schemas/EnergyAccountListV2_data'
         links:
           $ref: '#/components/schemas/LinksPaginated'
         meta:
@@ -3040,32 +3019,6 @@ components:
     #-------------------------------
     # Energy Schema Definitions
     #-------------------------------
-    EnergyPlanList:
-      properties:
-        data:
-          $ref: '#/components/schemas/EnergyPlanList_data'
-        links:
-          $ref: '#/components/schemas/LinksPaginated'
-        meta:
-          $ref: '#/components/schemas/MetaPaginated'
-      required:
-        - data
-        - links
-        - meta
-      type: object
-    EnergyPlanListV2:
-      type: object
-      properties:
-        data:
-          $ref: '#/components/schemas/EnergyPlanList_dataV2'
-        links:
-          $ref: '#/components/schemas/LinksPaginated'
-        meta:
-          $ref: '#/components/schemas/MetaPaginated'
-      required:
-        - data
-        - links
-        - meta
     EnergyServicePointList:
       properties:
         data:
@@ -3118,81 +3071,6 @@ components:
         - links
         - meta
       type: object
-    EnergyPlan:
-      properties:
-        planId:
-          description: The ID of the specific plan
-          type: string
-        effectiveFrom:
-          description: The date and time from which this plan is effective (ie. is
-            available for origination). Used to enable the articulation of products
-            to the regime before they are available for customers to originate
-          type: string
-        effectiveTo:
-          description: The date and time at which this plan will be retired and will
-            no longer be offered. Used to enable the managed deprecation of plans
-          type: string
-        lastUpdated:
-          description: The last date and time that the information for this plan was
-            changed (or the creation date for the plan if it has never been altered)
-          type: string
-        displayName:
-          description: The display name of the plan
-          type: string
-        description:
-          description: A description of the plan
-          type: string
-        type:
-          description: The type of the plan
-          enum:
-            - STANDING
-            - MARKET
-            - REGULATED
-          type: string
-        fuelType:
-          description: The fuel types covered by the plan
-          enum:
-            - ELECTRICITY
-            - GAS
-            - DUAL
-          type: string
-        brand:
-          description: The ID of the brand under which this plan is offered
-          type: string
-        brandName:
-          description: The display name of the brand under which this plan is offered
-          type: string
-        applicationUri:
-          description: A link to an application web page where this plan can be applied
-            for
-          type: string
-        additionalInformation:
-          $ref: '#/components/schemas/EnergyPlan_additionalInformation'
-        customerType:
-          description: The type of customer that the plan is offered to.  If absent
-            then the plan is available to all customers
-          enum:
-            - RESIDENTIAL
-            - BUSINESS
-          type: string
-        geography:
-          $ref: '#/components/schemas/EnergyPlan_geography'
-      required:
-        - brand
-        - brandName
-        - fuelType
-        - lastUpdated
-        - planId
-        - type
-      type: object
-    EnergyPlanDetail:
-      allOf:
-        - $ref: '#/components/schemas/EnergyPlan'
-        - $ref: '#/components/schemas/EnergyPlanDetail_allOf'
-    EnergyPlanDetailV2:
-      allOf:
-        - $ref: '#/components/schemas/EnergyPlan'
-        - $ref: '#/components/schemas/EnergyPlanDetail_allOfV2'
     EnergyPlanContract:
       properties:
         additionalFeeInformation:
@@ -4237,14 +4115,6 @@ components:
         - timeZone
         - variation
         - controlledLoad
-    EnergyPlanContractFull:
-      allOf:
-        - $ref: '#/components/schemas/EnergyPlanContract'
-        - $ref: '#/components/schemas/EnergyPlanContractFull_allOf'
-    EnergyPlanContractFullV2:
-      allOf:
-        - $ref: '#/components/schemas/EnergyPlanContractV2'
-        - $ref: '#/components/schemas/EnergyPlanContractFull_allOf'
     EnergyPlanContractV2:
       allOf:
         - $ref: '#/components/schemas/EnergyPlanContract'
@@ -5295,26 +5165,6 @@ components:
         - amount
         - method
       type: object
-    EnergyPlanList_data:
-      properties:
-        plans:
-          description: Array of plans
-          items:
-            $ref: '#/components/schemas/EnergyPlanDetail'
-          type: array
-      required:
-        - plans
-      type: object
-    EnergyPlanList_dataV2:
-      type: object
-      properties:
-        plans:
-          description: Array of plans (v2 schema)
-          type: array
-          items:
-            $ref: '#/components/schemas/EnergyPlanDetailV2'
-      required:
-        - plans
     EnergyServicePointList_data:
       properties:
         servicePoints:
@@ -5418,55 +5268,6 @@ components:
         - title
         - cdrArrangementId
       type: object
-    EnergyPlan_additionalInformation:
-      description: Object that contains links to additional information on specific
-        topics
-      properties:
-        overviewUri:
-          description: A link to a general overview of the plan
-          type: string
-        termsUri:
-          description: A link to terms and conditions for the plan
-          type: string
-        eligibilityUri:
-          description: A link to detail on eligibility criteria for the plan
-          type: string
-        pricingUri:
-          description: A link to detail on pricing for the plan
-          type: string
-        bundleUri:
-          description: A link to detail on bundles that this plan can be a part of
-          type: string
-      type: object
-    EnergyPlan_geography:
-      description: Describes the geographical area that the plan is available for.  If
-        absent then it is assumed the plan is not geographically limited
-      properties:
-        excludedPostcodes:
-          description: Array of valid Australian post codes that are specifically
-            excluded from the plan.  Each element is a single four digit postcode
-            (e.g. 3000) or a range of postcodes defined by two four digit postcodes
-            and a hyphen (e.g. 3000-3999)
-          items:
-            type: string
-          type: array
-        includedPostcodes:
-          description: Array of valid Australian post codes that are included from
-            the plan.  If absent defaults to all non-excluded post codes.  Each element
-            is a single four digit postcode (e.g. 3000) or a range of postcodes defined
-            by two four digit postcodes and a hyphen (e.g. 3000-3999)
-          items:
-            type: string
-          type: array
-        distributors:
-          description: Array of distributors for the plan. Must have at least one
-            entry
-          items:
-            type: string
-          type: array
-      required:
-        - distributors
-      type: object
     EnergyPlanDetail_allOf_meteringCharges:
       properties:
         displayName:
@@ -5492,33 +5293,6 @@ components:
         - displayName
         - minimumValue
       type: object
-    EnergyPlanDetail_allOf:
-      properties:
-        meteringCharges:
-          description: Charges for metering included in the plan
-          items:
-            $ref: '#/components/schemas/EnergyPlanDetail_allOf_meteringCharges'
-          type: array
-        gasContract:
-          $ref: '#/components/schemas/EnergyPlanContractFull'
-        electricityContract:
-          $ref: '#/components/schemas/EnergyPlanContractFull'
-      type: object
-      x-conditional:
-        - gasContract
-        - electricityContract
-    EnergyPlanDetail_allOfV2:
-      type: object
-      properties:
-        meteringCharges:
-          description: Charges for metering included in the plan
-          items:
-            $ref: '#/components/schemas/EnergyPlanDetail_allOf_meteringCharges'
-          type: array
-        electricityContract:
-          $ref: '#/components/schemas/EnergyPlanContractFullV2'
-        gasContract:
-          $ref: '#/components/schemas/EnergyPlanContractFullV2'
     EnergyPlanContract_intrinsicGreenPower:
       description: Describes intrinsic green power for the plan.  If present then
         the plan includes a percentage of green power in the base plan. Should not
@@ -5530,51 +5304,6 @@ components:
       required:
         - greenPercentage
       type: object
-    EnergyPlanContractFull_allOf:
-      properties:
-        termType:
-          description: The term for the contract.  If absent assumes no specified
-            term
-          enum:
-            - 1_YEAR
-            - 2_YEAR
-            - 3_YEAR
-            - 4_YEAR
-            - 5_YEAR
-            - ONGOING
-            - OTHER
-          type: string
-        benefitPeriod:
-          description: Description of the benefit period.  Should only be present
-            if termType has the value ONGOING
-          type: string
-        terms:
-          description: Free text description of the terms for the contract
-          type: string
-        meterTypes:
-          description: An array of the meter types that this contract is available
-            for
-          items:
-            type: string
-          type: array
-        coolingOffDays:
-          description: 'Number of days in the cooling off period for the contract.  Mandatory
-            for plans with type of MARKET '
-          type: integer
-        billFrequency:
-          description: An array of the available billing schedules for this contract.
-            Formatted according to [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations)
-            (excludes recurrence syntax)
-          items:
-            type: string
-          type: array
-      required:
-        - billFrequency
-      type: object
-      x-conditional:
-        - benefitPeriod
-        - variation
-        - coolingOffDays
     EnergyServicePoint_consumerProfile:
       properties:
         classification:
