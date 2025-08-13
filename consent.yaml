@@ -1596,6 +1596,7 @@ components:
         - WEBHOOK_SENT
         - WEBHOOK_SENDING_FAILED
         - WEBHOOK_SENDING_FAILED_CLIENT_ERROR
+        - WEBHOOK_MAX_RETRIES_REACHED
   #-------------------------------
   # Reusable responses
   #-------------------------------
