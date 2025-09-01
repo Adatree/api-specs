@@ -5,7 +5,7 @@ info:
   contact:
     name: Adatree
     email: engineering@adatree.com.au
-  version: '1.4.0'
+  version: '1.4.1'
 servers:
   - url: 'https://cdr-insights-prod.api.adatree.com.au'
     description: Server url
@@ -1099,6 +1099,10 @@ components:
           type: string
           description: Adatree's customer can supply an externalId when creating consents to associate with records in its own system
           example: external-id-by-adatree-customer
+        customerIPAddress:
+          type: string
+          description: Customer IpAddress
+          example: 127.0.0.1
         grantee:
           $ref: '#/components/schemas/ConsentGrantee'
         serviceProvider:
