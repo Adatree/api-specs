@@ -1591,6 +1591,7 @@ components:
         - GRANTED
         - EXTENDED
         - REVOKED
+        - REMINDER
         - EXPIRED
         - DATA_COLLECTION_COMPLETED
         - EMAIL_SENT
