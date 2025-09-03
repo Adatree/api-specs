@@ -219,7 +219,6 @@ paths:
                           description: Data will be used to assess your eligibility for a home loan.
                           priority: 1
                           historicalCollectionPeriodInDays: 90
-                          notificationType: EMAIL
                           scopes:
                             - name: 'Bank account name, type and balance'
                               id: 'bank:accounts.basic:read'
@@ -762,8 +761,6 @@ components:
         description:
           type: string
           example: Data will be used to assess your eligibility for a home loan.
-        notificationType:
-          $ref: '#/components/schemas/NotificationType'
         scopes:
           type: array
           items:
@@ -1252,8 +1249,6 @@ components:
           type: integer
           format: int32
           example: 90
-        notificationType:
-          $ref: '#/components/schemas/NotificationType'
         scopes:
           type: array
           items:
@@ -1363,12 +1358,6 @@ components:
       enum:
         - ONCE_OFF
         - ONGOING
-    NotificationType:
-      type: string
-      example: EMAIL
-      enum:
-        - EMAIL
-        - SMS
     PostUsageAction:
       type: string
       example: DELETION
