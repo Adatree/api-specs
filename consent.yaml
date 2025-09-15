@@ -1238,12 +1238,20 @@ components:
         name:
           type: string
           example: Home Loan Assessment
+        active:
+          type: boolean
+          example: true
         softwareProductId:
           type: string
           example: software product id
         description:
           type: string
           example: Data will be used to assess your eligibility for a home loan.
+        anonymisationDetails:
+          type: string
+          description: Text displayed to consumers when de-identification feature is enabled.
+          maxLength: 500
+          example: We will keep your data but throw it in a blender to obfuscate it.
         priority:
           type: integer
           format: int32
