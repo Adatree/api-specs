@@ -5,7 +5,7 @@ info:
   contact:
     name: Adatree
     email: engineering@adatree.com.au
-  version: '1.4.1'
+  version: '1.4.2'
 servers:
   - url: 'https://cdr-insights-prod.api.adatree.com.au'
     description: Server url
@@ -117,53 +117,41 @@ paths:
           schema:
             type: string
         - name: oldestCreated
-          description: Constrain the consent with created time at or after this date/time. If absent defaults to newestCreated minus 90 days.  Format is aligned to DateTimeString common type
+          description: Constrain the consent with created time at or after this date/time. If absent defaults to newestCreated minus 90 days. Format is aligned to DateTimeString common type
           in: query
           required: false
           schema:
-            type: string
-            format: date-time
-            example: '1997-01-12T15:43:00.121Z'
+            $ref: '#/components/schemas/DateTimeString'
         - name: newestCreated
           description: Constrain the consent with created time at or before this date/time. If absent defaults to today. Format is aligned to DateTimeString common type
           in: query
           required: false
           schema:
-            type: string
-            format: date-time
-            example: '1997-01-12T15:43:00.121Z'
+            $ref: '#/components/schemas/DateTimeString'
         - name: oldestRevoked
-          description: Constrain the consent with revoked time at or after this date/time. If absent defaults to newestRevoked minus 90 days.  Format is aligned to DateTimeString common type
+          description: Constrain the consent with revoked time at or after this date/time. If absent defaults to newestRevoked minus 90 days. Format is aligned to DateTimeString common type
           in: query
           required: false
           schema:
-            type: string
-            format: date-time
-            example: '1997-01-12T15:43:00.121Z'
+            $ref: '#/components/schemas/DateTimeString'
         - name: newestRevoked
           description: Constrain the consent with revoked time at or before this date/time. If absent defaults to today. Format is aligned to DateTimeString common type
           in: query
           required: false
           schema:
-            type: string
-            format: date-time
-          example: '1997-01-12T15:43:00.121Z'
+            $ref: '#/components/schemas/DateTimeString'
         - name: oldestCollectionEndDate
-          description: Constrain the consent with collectionEndDate time at or after this date/time. If absent defaults to newestCollectionEndDate minus 90 days.  Format is aligned to DateTimeString common type
+          description: Constrain the consent with collectionEndDate time at or after this date/time. If absent defaults to newestCollectionEndDate minus 90 days. Format is aligned to DateTimeString common type
           in: query
           required: false
           schema:
-            type: string
-            format: date-time
-          example: '1997-01-12T15:43:00.121Z'
+            $ref: '#/components/schemas/DateTimeString'
         - name: newestCollectionEndDate
           description: Constrain the consent with collectionEndDate time at or before this date/time. If absent defaults to today. Format is aligned to DateTimeString common type
           in: query
           required: false
           schema:
-            type: string
-            format: date-time
-            example: '1997-01-12T15:43:00.121Z'
+            $ref: '#/components/schemas/DateTimeString'
         - name: externalId
           description: Constrain the consent by externalId
           in: query
@@ -247,20 +235,7 @@ paths:
                               accreditationId: ADRBNK000071
                               cdrPolicyUri: 'https://adatree.com.au/cdr-policy'
                           consumerType: INDIVIDUAL
-                          customDataSchema: |
-                            $schema: 'https://json-schema.org/draft/2019-09/schema'
-                            type: object
-                            title: custom data Schema
-                            description: JSON schema of customer data
-                            purpose: explain why custom data is needed
-                            properties:
-                              employerName:
-                                type: string
-                                displayText: Employer name
-                                uiComponent:
-                                  inputType: text
-                                rules:
-                                  required: Employer name is required
+                          customDataSchema: "{\"$schema\":\"https://json-schema.org/draft/2019-09/schema\",\"type\":\"object\",\"title\":\"custom data Schema\",\"description\":\"JSON schema of customer data\",\"purpose\":\"explain why custom data is needed\",\"properties\":{\"employerName\":{\"type\":\"string\",\"displayText\":\"Employer name\",\"uiComponent\":{\"inputType\":\"text\"},\"rules\":{\"required\":\"Employer name is required\"}}}}"
                         postUsageAction: DELETION
                         consumerId: abedfaas-asdfsf-4asdf-1465-sfsadf3413
                         cdrArrangementId: 86a5d068-447a-4765-95c2-6f5d85d9d658
@@ -276,8 +251,7 @@ paths:
                           name: a cool service provider
                           uri: 'https://wicked.service/policy.html'
                           description: the best service provider ever
-                        metadata:
-                          employerName: Adatree
+                        metadata: "{\"employerName\":\"Adatree\"}"
                     links:
                       self: 'https://self.example.com.au?page=3&pageSize=25'
                       first: 'https://self.example.com.au?page=1&pageSize=25'
@@ -517,17 +491,13 @@ paths:
           in: query
           required: false
           schema:
-            type: string
-            format: date-time
-            example: "2022-02-06T08:17:26Z"
+            $ref: '#/components/schemas/DateTimeString'
         - name: newest
           description: Constrain the consent event result list with timestamp at or before this date/time. Format is aligned to DateTimeString common type
           in: query
           required: false
           schema:
-            type: string
-            format: date-time
-            example: "2022-02-01T15:43:00.121Z"
+            $ref: '#/components/schemas/DateTimeString'
         - $ref: '#/components/parameters/ParamConsentId'
         - $ref: '#/components/parameters/ParamPage'
         - $ref: '#/components/parameters/ParamPageSize'
@@ -820,6 +790,11 @@ components:
           description: list of industries this data holder belongs to.
           items:
             $ref: '#/components/schemas/Industry'
+    DateTimeString:
+      type: string
+      format: date-time
+      example: '2022-02-06T08:17:26Z'
+      description: "RFC3339 date-time string; value should ideally be encoded"
     UpdateConsentConsumer:
       type: object
       properties:
