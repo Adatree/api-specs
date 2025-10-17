@@ -5,7 +5,7 @@ info:
   contact:
     name: Adatree
     email: engineering@adatree.com.au
-  version: '1.4.2'
+  version: '1.4.3'
 servers:
   - url: 'https://cdr-insights-prod.api.adatree.com.au'
     description: Server url
@@ -275,7 +275,7 @@ paths:
       tags:
         - Consent
       summary: Get Consent
-      description: Retreive a single consent record for this consumer
+      description: Retrieve a single consent record for this consumer
       operationId: findConsent
       parameters:
         - name: consentId
@@ -305,10 +305,13 @@ paths:
         - m2m: [ 'consents:write' ]
       tags:
         - Consent
-      summary: Update a consent's via dashboard or back channel
+      summary: Update consent via dashboard or API (back-channel)
       description: |
-        <ul><li>Update postUsageAction and directMarketing option when a dashboard token is received</li><br/>
-        <li>Update externalId when a machine (back-channel) token is received</li></ul>
+        When called via API (back-channel), facilitates correlation between between an Adatree consent with an external 
+        resource via the provided `externalId` identifier.
+        
+        When called via the consumer dashboard flow, allows the consumer to communicate how their CDR data is handled by 
+        systems external to Adatree; relevant for customers that opt to use their own consent flow.
       operationId: updateConsent
       parameters:
         - name: consentId
@@ -803,6 +806,7 @@ components:
         directMarketingAllowed:
           type: boolean
           example: true
+          description: Indicates whether the consumer permits marketing to be sent directly to them.
     UpdateConsentMachine:
       type: object
       properties:
@@ -1354,6 +1358,9 @@ components:
         - SMS
     PostUsageAction:
       type: string
+      description: |
+        Indicates the consumer’s preferred action for their data once consent expires. Note that this applies only to 
+        data held outside of Adatree’s systems — all CDR data within Adatree is automatically deleted after consent ends.
       example: DELETION
       enum:
         - DELETION
