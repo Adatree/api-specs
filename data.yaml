@@ -266,6 +266,7 @@ paths:
           $ref: '#/components/responses/429RateLimited'
   /data/energy/accounts:
     get:
+      deprecated: true
       security:
         - bearerAuth: [ 'data:energy:accounts:read' ]
       tags:
