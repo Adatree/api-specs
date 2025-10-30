@@ -274,6 +274,7 @@ paths:
       summary: Get Energy Accounts
       description: |-
         Obtain the list of energy accounts that consumers have consented to share across all data holders
+        Deprecated; use GET /data/v2/energy/accounts instead.
       operationId: getEnergyAccounts
       parameters:
         - $ref: '#/components/parameters/QueryUseCaseIds'
