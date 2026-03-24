@@ -1725,7 +1725,9 @@ components:
             - PER_TIER
             - WHOLE_BALANCE
         applicabilityConditions:
-          $ref: '#/components/schemas/BankingProductRateCondition'
+          deprecated: true
+          allOf:
+            - $ref: '#/components/schemas/BankingProductRateCondition'
         applicabilityConditionList:
           type: array
           description: Conditions for the applicability of the tiered rate
@@ -1958,7 +1960,6 @@ components:
           example: NSW
       description: Australian address formatted according to the file format defined by the [PAF file format](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf)
     BankingProductRateCondition:
-      deprecated: true
       type: object
       properties:
         rateApplicabilityType:
@@ -6017,9 +6018,13 @@ components:
             $ref: '#/components/schemas/EnergyPlanDetail_allOf_meteringCharges'
           type: array
         gasContract:
-          $ref: '#/components/schemas/EnergyPlanContract'
+          description: "v2: Updated Gas Contract details"
+          allOf:
+            - $ref: '#/components/schemas/EnergyPlanContract'
         electricityContract:
-          $ref: '#/components/schemas/EnergyPlanContract'
+          description: "v2: Updated Electricity Contract details"
+          allOf:
+            - $ref: '#/components/schemas/EnergyPlanContract'
       required:
         - fuelType
       type: object
