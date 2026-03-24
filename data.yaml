@@ -1049,6 +1049,12 @@ components:
               description: The addresses for the account to be used for correspondence
               items:
                 $ref: '#/components/schemas/CommonPhysicalAddress'
+            isInstalmentDetailAvailable:
+              type: boolean
+              default: false
+              description: True if any active or inactive instalment plans are available in the instalment plan endpoints. False if instalment plans are not applicable to the account
+            instalments:
+              $ref: '#/components/schemas/BankingProductInstalments'
             adatree:
               $ref: '#/components/schemas/BankingAccountDetail_adatree'
           x-conditional:
@@ -1064,8 +1070,7 @@ components:
           properties:
             isActivated:
               type: boolean
-              description: True if the feature is already activated and false if the feature is available for activation. Defaults to true if absent. (note this is an additional field appended to the feature object defined in the Product Reference payload)
-              default: true
+              description: True if the feature is already activated and false if the feature is available for activation. (note this is an additional field appended to the feature object defined in the Product Reference payload)
               example: true
     BankingTermDepositAccount:
       type: object
@@ -1136,6 +1141,7 @@ components:
           type: string
           example: AUD
           description: If absent assumes AUD
+          default: AUD
         loanEndDate:
           type: string
           example: "2047-12-30"
@@ -1152,6 +1158,7 @@ components:
           type: string
           example: AUD
           description: If absent assumes AUD
+          default: AUD
         maxRedraw:
           type: string
           example: 9999.99
@@ -1160,6 +1167,7 @@ components:
           type: string
           example: AUD
           description: If absent assumes AUD
+          default: AUD
         minRedraw:
           type: string
           example: 1000
@@ -1168,13 +1176,14 @@ components:
           type: string
           example: AUD
           description: If absent assumes AUD
+          default: AUD
         offsetAccountEnabled:
           type: boolean
           example: true
           description: Set to true if one or more offset accounts are configured for this loan account
         offsetAccountIds:
           type: array
-          description: The accountIDs of the configured offset accounts attached to this loan. Only offset accounts that can be accessed under the current authorisation should be included. It is expected behaviour that offsetAccountEnabled is set to true but the offsetAccountIds field is absent or empty. This represents a situation where an offset account exists but details can not be accessed under the current authorisation
+          description: The accountIDs of the configured offset accounts attached to this loan. Only offset accounts that can be accessed under the current authorisation should be included.
           items:
             example: ["f632041c-d7c8-4679-a165-aa406cd62b13"]
             type: string
@@ -1185,7 +1194,9 @@ components:
           default: PRINCIPAL_AND_INTEREST
           enum:
             - INTEREST_ONLY
+            - OTHER
             - PRINCIPAL_AND_INTEREST
+            - UNCONSTRAINED
         repaymentFrequency:
           type: string
           example: P1M
@@ -1290,6 +1301,13 @@ components:
           type: string
           example: P1M
           description: The period after which the rate is applied to the balance to calculate the amount due for the period. Calculation of the amount is often daily (as balances may change) but accumulated until the total amount is 'applied' to the account (see applicationFrequency). Formatted according to [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations) (excludes recurrence syntax)
+        applicationType:
+          type: string
+          description: The method used to apply the calculated amount
+          enum:
+            - MATURITY
+            - PERIODIC
+            - UPFRONT
         applicationFrequency:
           type: string
           example: P1M
@@ -1299,6 +1317,11 @@ components:
           description: Rate tiers applicable for this rate
           items:
             $ref: '#/components/schemas/BankingProductRateTierV3'
+        applicabilityConditionList:
+          type: array
+          description: Applicability conditions for the rate
+          items:
+            $ref: '#/components/schemas/BankingProductRateCondition'
         additionalValue:
           type: string
           example: additional value for deposit rate
@@ -1348,6 +1371,13 @@ components:
           type: string
           example: P1M
           description: The period after which the rate is applied to the balance to calculate the amount due for the period. Calculation of the amount is often daily (as balances may change) but accumulated until the total amount is 'applied' to the account (see applicationFrequency). Formatted according to [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations) (excludes recurrence syntax)
+        applicationType:
+          type: string
+          description: The method used to apply the calculated amount
+          enum:
+            - MATURITY
+            - PERIODIC
+            - UPFRONT
         applicationFrequency:
           type: string
           example: P1M
@@ -1382,6 +1412,11 @@ components:
           description: Rate tiers applicable for this rate
           items:
             $ref: '#/components/schemas/BankingProductRateTierV3'
+        applicabilityConditionList:
+          type: array
+          description: Applicability conditions for the rate
+          items:
+            $ref: '#/components/schemas/BankingProductRateCondition'
         additionalValue:
           type: string
           example: additional value for lending
@@ -1431,23 +1466,49 @@ components:
             - WITHDRAWAL
         amount:
           type: string
+          deprecated: true
           description: The amount charged for the fee. One of amount, balanceRate, transactionRate and accruedRate is mandatory unless the *feeType* "VARIABLE" is supplied
           example: "4.00"
         balanceRate:
           type: string
+          deprecated: true
           description: A fee rate calculated based on a proportion of the balance. One of amount, balanceRate, transactionRate and accruedRate is mandatory unless the *feeType* "VARIABLE" is supplied.
           example: "3.99"
         transactionRate:
           type: string
+          deprecated: true
           description: A fee rate calculated based on a proportion of a transaction. One of amount, balanceRate, transactionRate and accruedRate is mandatory unless the *feeType* "VARIABLE" is supplied
           example: "0.02"
         accruedRate:
           type: string
+          deprecated: true
           description: A fee rate calculated based on a proportion of the calculated interest accrued on the account. One of amount, balanceRate, transactionRate and accruedRate is mandatory unless the *feeType* "VARIABLE" is supplied
           example: "0.00"
         accrualFrequency:
           type: string
+          deprecated: true
           description: The indicative frequency with which the fee is calculated on the account. Only applies if balanceRate or accruedRate is also present. Formatted according to [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations) (excludes recurrence syntax)
+          example: P1M
+        feeMethodUType:
+          type: string
+          description: The method used to calculate the fee
+          enum:
+            - fixedAmount
+            - rateBased
+            - variable
+        fixedAmount:
+          $ref: '#/components/schemas/BankingFeeAmount'
+        rateBased:
+          $ref: '#/components/schemas/BankingFeeRate'
+        variable:
+          $ref: '#/components/schemas/BankingFeeRange'
+        feeCap:
+          type: string
+          description: The maximum total amount charged for a fee over a period
+          example: "10.00"
+        feeCapPeriod:
+          type: string
+          description: The period over which a fee cap applies. Formatted according to ISO 8601 Durations
           example: P1M
         currency:
           type: string
@@ -1476,6 +1537,73 @@ components:
         - balanceRate
         - transactionRate
         - accruedRate
+    BankingFeeAmount:
+      type: object
+      properties:
+        amount:
+          type: string
+          description: Fixed fee amount
+          example: "4.00"
+    BankingFeeRate:
+      type: object
+      properties:
+        rate:
+          type: string
+          description: Generic fee rate
+          example: "3.99"
+        rateType:
+          type: string
+          description: The type of rate used to calculate the fee or discount
+          enum:
+            - BALANCE
+            - TRANSACTION
+            - INTEREST_ACCRUED
+            - FEE
+        accrualFrequency:
+          type: string
+          description: The indicative frequency with which the fee is calculated on the account. Formatted according to ISO 8601 Durations
+          example: P1M
+        amountRange:
+          $ref: '#/components/schemas/BankingFeeRange'
+    BankingFeeDiscountRate:
+      type: object
+      properties:
+        rate:
+          type: string
+          description: Generic discount rate
+          example: "3.99"
+        rateType:
+          type: string
+          description: The type of rate used to calculate the discount
+          enum:
+            - BALANCE
+            - TRANSACTION
+            - INTEREST_ACCRUED
+            - FEE
+        amountRange:
+          $ref: '#/components/schemas/BankingFeeDiscountRange'
+    BankingFeeRange:
+      type: object
+      properties:
+        feeMinimum:
+          type: string
+          description: The minimum amount for which the range applies
+          example: "0.00"
+        feeMaximum:
+          type: string
+          description: The maximum amount for which the range applies
+          example: "100.00"
+    BankingFeeDiscountRange:
+      type: object
+      properties:
+        discountMinimum:
+          type: string
+          description: The minimum discount amount for which the range applies
+          example: "0.00"
+        discountMaximum:
+          type: string
+          description: The maximum discount amount for which the range applies
+          example: "100.00"
     CommonPhysicalAddress:
       type: object
       required:
@@ -1512,6 +1640,7 @@ components:
             - CARD_ACCESS
             - CASHBACK_OFFER
             - COMPLEMENTARY_PRODUCT_DISCOUNTS
+            - EXTRA_DOWN_PAYMENT
             - DIGITAL_BANKING
             - DIGITAL_WALLET
             - DONATE_INTEREST
@@ -1519,6 +1648,7 @@ components:
             - FRAUD_PROTECTION
             - FREE_TXNS
             - FREE_TXNS_ALLOWANCE
+            - FUNDS_AVAILABLE_AFTER
             - GUARANTOR
             - INSURANCE
             - INSTALMENT_PLAN
@@ -1571,12 +1701,22 @@ components:
             - MONTH
         minimumValue:
           type: number
+          deprecated: true
           example: 1
           description: The number of tierUnitOfMeasure units that form the lower bound of the tier. The tier should be inclusive of this value
         maximumValue:
           type: number
+          deprecated: true
           example: 3
           description: 'The number of tierUnitOfMeasure units that form the upper bound of the tier or band. For a tier with a discrete value (as opposed to a range of values e.g. 1 month) this must be the same as tierValueMinimum. Where this is the same as the tierValueMinimum value of the next-higher tier the referenced tier should be exclusive of this value. For example a term deposit of 2 months falls into the upper tier of the following tiers: (1 - 2 months, 2 - 3 months). If absent the tier''s range has no upper bound.'
+        minimumValueString:
+          type: string
+          example: "1"
+          description: String representation of the lower bound of the tier
+        maximumValueString:
+          type: string
+          example: "3"
+          description: String representation of the upper bound of the tier
         rateApplicationMethod:
           type: string
           description: The method used to calculate the amount to be applied using one or more tiers. A single rate may be applied to the entire balance or each applicable tier rate is applied to the portion of the balance that falls into that tier (referred to as 'bands' or 'steps')
@@ -1585,7 +1725,14 @@ components:
             - PER_TIER
             - WHOLE_BALANCE
         applicabilityConditions:
-          $ref: '#/components/schemas/BankingProductRateCondition'
+          deprecated: true
+          allOf:
+            - $ref: '#/components/schemas/BankingProductRateCondition'
+        applicabilityConditionList:
+          type: array
+          description: Conditions for the applicability of the tiered rate
+          items:
+            $ref: '#/components/schemas/BankingProductRateCondition'
         additionalInfo:
           type: string
           example: additional info for tier
@@ -1617,24 +1764,39 @@ components:
             - PAYMENTS
         amount:
           type: string
+          deprecated: true
           example: "10.00"
           description: Dollar value of the discount. One of amount, balanceRate, transactionRate, accruedRate and feeRate is mandatory.
         balanceRate:
           type: string
+          deprecated: true
           example: "0.05"
           description: A discount rate calculated based on a proportion of the balance. Note that the currency of the fee discount is expected to be the same as the currency of the fee itself. One of amount, balanceRate, transactionRate, accruedRate and feeRate is mandatory. Unless noted in additionalInfo, assumes the application and calculation frequency are the same as the corresponding fee
         transactionRate:
           type: string
+          deprecated: true
           example: "0.05"
           description: A discount rate calculated based on a proportion of a transaction. Note that the currency of the fee discount is expected to be the same as the currency of the fee itself. One of amount, balanceRate, transactionRate, accruedRate and feeRate is mandatory
         accruedRate:
           type: string
+          deprecated: true
           example: "0.05"
           description: A discount rate calculated based on a proportion of the calculated interest accrued on the account. Note that the currency of the fee discount is expected to be the same as the currency of the fee itself. One of amount, balanceRate, transactionRate, accruedRate and feeRate is mandatory. Unless noted in additionalInfo, assumes the application and calculation frequency are the same as the corresponding fee
         feeRate:
           type: string
+          deprecated: true
           example: "0.05"
           description: A discount rate calculated based on a proportion of the fee to which this discount is attached. Note that the currency of the fee discount is expected to be the same as the currency of the fee itself. One of amount, balanceRate, transactionRate, accruedRate and feeRate is mandatory. Unless noted in additionalInfo, assumes the application and calculation frequency are the same as the corresponding fee
+        discountMethodUType:
+          type: string
+          description: The method used to calculate the discount
+          enum:
+            - FIXED_AMOUNT
+            - RATE_BASED
+        fixedAmount:
+          $ref: '#/components/schemas/BankingFeeAmount'
+        rateBased:
+          $ref: '#/components/schemas/BankingFeeDiscountRate'
         additionalValue:
           type: string
           example: extra discount
@@ -1800,6 +1962,25 @@ components:
     BankingProductRateCondition:
       type: object
       properties:
+        rateApplicabilityType:
+          type: string
+          description: The type of rate applicability condition described
+          enum:
+            - MIN_DEPOSITS
+            - MIN_DEPOSIT_AMOUNT
+            - DEPOSIT_BALANCE_INCREASED
+            - EXISTING_CUST
+            - NEW_ACCOUNTS
+            - NEW_CUSTOMER
+            - NEW_CUSTOMER_TO_GROUP
+            - ONLINE_ONLY
+            - OTHER
+            - MIN_PURCHASES
+            - MAX_WITHDRAWALS
+            - MAX_WITHDRAWAL_AMOUNT
+        additionalValue:
+          type: string
+          description: Generic field containing additional information relevant to the rate applicability condition
         additionalInfo:
           type: string
           example: additional info for rate condition
@@ -2317,6 +2498,30 @@ components:
           description: An array of card art images
           items:
             $ref: '#/components/schemas/BankingProductV3_cardArt'
+    BankingProductInstalments:
+      type: object
+      required:
+        - minimumSplit
+        - maximumSplit
+      properties:
+        maximumConcurrentPlans:
+          type: integer
+          description: Maximum number of instalment plans that can operate concurrently
+        instalmentsLimit:
+          type: string
+          description: Maximum total value of transactions that may be converted to instalments
+        minimumPlanValue:
+          type: string
+          description: Minimum value for an instalment plan
+        maximumPlanValue:
+          type: string
+          description: Maximum value for an instalment plan
+        minimumSplit:
+          type: integer
+          description: Minimum number of instalments allowed
+        maximumSplit:
+          type: integer
+          description: Maximum number of instalments allowed
     BankingProductConstraint:
       type: object
       required:
@@ -5813,9 +6018,13 @@ components:
             $ref: '#/components/schemas/EnergyPlanDetail_allOf_meteringCharges'
           type: array
         gasContract:
-          $ref: '#/components/schemas/EnergyPlanContract'
+          description: "v2: Updated Gas Contract details"
+          allOf:
+            - $ref: '#/components/schemas/EnergyPlanContract'
         electricityContract:
-          $ref: '#/components/schemas/EnergyPlanContract'
+          description: "v2: Updated Electricity Contract details"
+          allOf:
+            - $ref: '#/components/schemas/EnergyPlanContract'
       required:
         - fuelType
       type: object
