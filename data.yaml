@@ -509,6 +509,7 @@ components:
       type: object
       required:
         - data
+        - errors
         - links
         - meta
       properties:
