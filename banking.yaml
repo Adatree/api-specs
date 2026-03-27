@@ -2951,7 +2951,7 @@ components:
           type: object
           description: troubleshooting for CTS testing
           example: {}
-    LinksPaginated:
+    BankingLinksPaginated:
       type: object
       required:
         - self
