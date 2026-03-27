@@ -1297,7 +1297,8 @@ components:
             - WHOLE_BALANCE
         applicabilityConditions:
           deprecated: true
-          $ref: '#/components/schemas/BankingProductRateCondition'
+          allOf:
+            - $ref: '#/components/schemas/BankingProductRateCondition'
         applicabilityConditionList:
           type: array
           description: Conditions for the applicability of the tiered rate
