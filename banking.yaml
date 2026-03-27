@@ -709,6 +709,7 @@ components:
             - CARD_ACCESS
             - CASHBACK_OFFER
             - COMPLEMENTARY_PRODUCT_DISCOUNTS
+            - EXTRA_DOWN_PAYMENT
             - DIGITAL_BANKING
             - DIGITAL_WALLET
             - DONATE_INTEREST
@@ -716,6 +717,7 @@ components:
             - FRAUD_PROTECTION
             - FREE_TXNS
             - FREE_TXNS_ALLOWANCE
+            - FUNDS_AVAILABLE_AFTER
             - GUARANTOR
             - INSURANCE
             - INSTALMENT_PLAN
@@ -750,50 +752,88 @@ components:
     BankingProductFee:
       type: object
       required:
-        - feeType
         - name
+        - feeType
+        - feeMethodUType
       properties:
         name:
           type: string
-          description: Name of the fee
+          description: Name of the fee.
           example: account fee
         feeType:
           type: string
-          description: The type of fee
+          description: The type of fee.
           example: PERIODIC
           enum:
+            - CASH_ADVANCE
             - DEPOSIT
+            - DISHONOUR
+            - ENQUIRY
             - EVENT
             - EXIT
+            - LATE_PAYMENT
+            - OTHER
             - PAYMENT
             - PERIODIC
             - PURCHASE
+            - REPLACEMENT
             - TRANSACTION
             - UPFRONT
+            - UPFRONT_PER_PLAN
+            - VARIATION
             - VARIABLE
             - WITHDRAWAL
+        feeMethodUType:
+          type: string
+          description: Reference to the applicable fee charging method structure.
+          enum:
+            - fixedAmount
+            - rateBased
+            - variable
+        fixedAmount:
+          allOf:
+            - $ref: '#/components/schemas/BankingFeeAmount'
+        rateBased:
+          allOf:
+            - $ref: '#/components/schemas/BankingFeeRate'
+        variable:
+          allOf:
+            - $ref: '#/components/schemas/BankingFeeRange'
+        feeCap:
+          type: string
+          description: The cap amount if multiple occurrences of the fee are capped to a limit.
+          x-cds-type: AmountString
+        feeCapPeriod:
+          type: string
+          description: Specifies a duration over which multiple occurrences of the fee will be capped.
+          x-cds-type: ExternalRef
         amount:
           type: string
+          deprecated: true
           description: The amount charged for the fee. One of amount, balanceRate, transactionRate and accruedRate is mandatory unless the *feeType* "VARIABLE" is supplied
           x-cds-type: AmountString
           example: 4.00
         balanceRate:
           type: string
+          deprecated: true
           description: A fee rate calculated based on a proportion of the balance. One of amount, balanceRate, transactionRate and accruedRate is mandatory unless the *feeType* "VARIABLE" is supplied.
           example: 3.99
           x-cds-type: RateString
         transactionRate:
           type: string
+          deprecated: true
           description: A fee rate calculated based on a proportion of a transaction. One of amount, balanceRate, transactionRate and accruedRate is mandatory unless the *feeType* "VARIABLE" is supplied
           example: 0.02
           x-cds-type: RateString
         accruedRate:
           type: string
+          deprecated: true
           description: A fee rate calculated based on a proportion of the calculated interest accrued on the account. One of amount, balanceRate, transactionRate and accruedRate is mandatory unless the *feeType* "VARIABLE" is supplied
           example: 0.00
           x-cds-type: RateString
         accrualFrequency:
           type: string
+          deprecated: true
           description: The indicative frequency with which the fee is calculated on the account. Only applies if balanceRate or accruedRate is also present. Formatted according to [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations) (excludes recurrence syntax)
           x-cds-type: ExternalRef
           example: P1M
@@ -821,11 +861,59 @@ components:
           items:
             $ref: '#/components/schemas/BankingProductDiscount'
       x-conditional:
+        - fixedAmount
+        - rateBased
+        - variable
         - additionalValue
+        - additionalInfo
         - amount
         - balanceRate
         - transactionRate
         - accruedRate
+    BankingFeeAmount:
+      type: object
+      required:
+        - amount
+      properties:
+        amount:
+          type: string
+          description: The specific amount charged for the fee each time it is incurred.
+          x-cds-type: AmountString
+    BankingFeeRate:
+      type: object
+      required:
+        - rateType
+        - rate
+      properties:
+        rateType:
+          type: string
+          description: Type of fee rate calculation.
+          enum:
+            - BALANCE
+            - INTEREST_ACCRUED
+            - TRANSACTION
+        rate:
+          type: string
+          description: The fee rate calculated according to the rateType.
+          x-cds-type: RateString
+        accrualFrequency:
+          type: string
+          description: The indicative frequency with which the fee is calculated on the account if applicable.
+          x-cds-type: ExternalRef
+        amountRange:
+          $ref: '#/components/schemas/BankingFeeRange'
+    BankingFeeRange:
+      type: object
+      description: A minimum or maximum fee amount where a specific fixed amount is not known until the fee is incurred.
+      properties:
+        feeMinimum:
+          type: string
+          description: The minimum fee that will be charged per occurrence.
+          x-cds-type: AmountString
+        feeMaximum:
+          type: string
+          description: The maximum fee that will be charged per occurrence.
+          x-cds-type: AmountString
     BankingProductDiscount:
       type: object
       required:
@@ -846,29 +934,46 @@ components:
             - ELIGIBILITY_ONLY
             - FEE_CAP
             - PAYMENTS
+        discountMethodUType:
+          type: string
+          description: Reference to the applicable fee discount method structure.
+          enum:
+            - fixedAmount
+            - rateBased
+        fixedAmount:
+          allOf:
+            - $ref: '#/components/schemas/BankingFeeDiscountAmount'
+        rateBased:
+          allOf:
+            - $ref: '#/components/schemas/BankingFeeDiscountRate'
         amount:
           type: string
           example: 10.00
+          deprecated: true
           description: Dollar value of the discount. One of amount, balanceRate, transactionRate, accruedRate and feeRate is mandatory.
           x-cds-type: AmountString
         balanceRate:
           type: string
           example: 0.05
+          deprecated: true
           description: A discount rate calculated based on a proportion of the balance. Note that the currency of the fee discount is expected to be the same as the currency of the fee itself. One of amount, balanceRate, transactionRate, accruedRate and feeRate is mandatory. Unless noted in additionalInfo, assumes the application and calculation frequency are the same as the corresponding fee
           x-cds-type: RateString
         transactionRate:
           type: string
           example: 0.05
+          deprecated: true
           description: A discount rate calculated based on a proportion of a transaction. Note that the currency of the fee discount is expected to be the same as the currency of the fee itself. One of amount, balanceRate, transactionRate, accruedRate and feeRate is mandatory
           x-cds-type: RateString
         accruedRate:
           type: string
           example: 0.05
+          deprecated: true
           description: A discount rate calculated based on a proportion of the calculated interest accrued on the account. Note that the currency of the fee discount is expected to be the same as the currency of the fee itself. One of amount, balanceRate, transactionRate, accruedRate and feeRate is mandatory. Unless noted in additionalInfo, assumes the application and calculation frequency are the same as the corresponding fee
           x-cds-type: RateString
         feeRate:
           type: string
           example: 0.05
+          deprecated: true
           description: A discount rate calculated based on a proportion of the fee to which this discount is attached. Note that the currency of the fee discount is expected to be the same as the currency of the fee itself. One of amount, balanceRate, transactionRate, accruedRate and feeRate is mandatory. Unless noted in additionalInfo, assumes the application and calculation frequency are the same as the corresponding fee
           x-cds-type: RateString
         additionalValue:
@@ -890,6 +995,8 @@ components:
           items:
             $ref: '#/components/schemas/BankingProductDiscountEligibility'
       x-conditional:
+        - fixedAmount
+        - rateBased
         - accruedRate
         - additionalValue
         - amount
@@ -897,6 +1004,47 @@ components:
         - eligibility
         - feeRate
         - transactionRate
+    BankingFeeDiscountAmount:
+      type: object
+      required:
+        - amount
+      properties:
+        amount:
+          type: string
+          description: The specific amount discounted from the fee each time it is incurred.
+          x-cds-type: AmountString
+    BankingFeeDiscountRate:
+      type: object
+      required:
+        - rateType
+        - rate
+      properties:
+        rateType:
+          type: string
+          description: Type of fee rate discount calculation.
+          enum:
+            - BALANCE
+            - FEE
+            - INTEREST_ACCRUED
+            - TRANSACTION
+        rate:
+          type: string
+          description: The fee rate discount calculated according to the rateType.
+          x-cds-type: RateString
+        amountRange:
+          $ref: '#/components/schemas/BankingFeeDiscountRange'
+    BankingFeeDiscountRange:
+      type: object
+      description: A minimum or maximum fee discount amount where a specific fixed amount is not known until the fee is incurred.
+      properties:
+        discountMinimum:
+          type: string
+          description: The minimum fee discount that will be applied per occurrence.
+          x-cds-type: AmountString
+        discountMaximum:
+          type: string
+          description: The maximum fee discount that will be applied per occurrence.
+          x-cds-type: AmountString
     BankingProductDiscountEligibility:
       type: object
       required:
@@ -964,6 +1112,13 @@ components:
           example: P1M
           description: The period after which the rate is applied to the balance to calculate the amount due for the period. Calculation of the amount is often daily (as balances may change) but accumulated until the total amount is 'applied' to the account (see applicationFrequency). Formatted according to [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations) (excludes recurrence syntax)
           x-cds-type: ExternalRef
+        applicationType:
+          type: string
+          description: The method used to apply the calculated amount
+          enum:
+            - MATURITY
+            - PERIODIC
+            - UPFRONT
         applicationFrequency:
           type: string
           example: P1M
@@ -974,6 +1129,11 @@ components:
           description: Rate tiers applicable for this rate
           items:
             $ref: '#/components/schemas/BankingProductRateTierV3'
+        applicabilityConditionList:
+          type: array
+          description: Applicability conditions for the rate
+          items:
+            $ref: '#/components/schemas/BankingProductRateCondition'
         additionalValue:
           type: string
           example: additional value for deposit rate
@@ -1000,6 +1160,7 @@ components:
           description: The type of rate (fixed, variable, etc). See the next section for an overview of valid values and their meaning
           example: CASH_ADVANCE
           enum:
+            - BALANCE_TRANSFER
             - BUNDLE_DISCOUNT_FIXED
             - BUNDLE_DISCOUNT_VARIABLE
             - CASH_ADVANCE
@@ -1026,6 +1187,13 @@ components:
           example: P1M
           description: The period after which the rate is applied to the balance to calculate the amount due for the period. Calculation of the amount is often daily (as balances may change) but accumulated until the total amount is 'applied' to the account (see applicationFrequency). Formatted according to [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations) (excludes recurrence syntax)
           x-cds-type: ExternalRef
+        applicationType:
+          type: string
+          description: The method used to apply the calculated amount
+          enum:
+            - MATURITY
+            - PERIODIC
+            - UPFRONT
         applicationFrequency:
           type: string
           example: P1M
@@ -1044,19 +1212,28 @@ components:
           description: Options in place for repayments. If absent, the lending rate is applicable to all repayment types
           enum:
             - INTEREST_ONLY
+            - OTHER
             - PRINCIPAL_AND_INTEREST
+            - UNCONSTRAINED
         loanPurpose:
           type: string
           example: OWNER_OCCUPIED
           description: The reason for taking out the loan. If absent, the lending rate is applicable to all loan purposes
           enum:
+            - OTHER
             - OWNER_OCCUPIED
             - INVESTMENT
+            - UNCONSTRAINED
         tiers:
           type: array
           description: Rate tiers applicable for this rate
           items:
             $ref: '#/components/schemas/BankingProductRateTierV3'
+        applicabilityConditionList:
+          type: array
+          description: Applicability conditions for the rate
+          items:
+            $ref: '#/components/schemas/BankingProductRateCondition'
         additionalValue:
           type: string
           example: additional value for lending
@@ -1075,7 +1252,6 @@ components:
     BankingProductRateTierV3:
       type: object
       required:
-        - minimumValue
         - name
         - unitOfMeasure
       properties:
@@ -1094,14 +1270,24 @@ components:
             - MONTH
         minimumValue:
           type: number
+          deprecated: true
           example: 1
           description: The number of tierUnitOfMeasure units that form the lower bound of the tier. The tier should be inclusive of this value
           x-cds-type: Number
         maximumValue:
           type: number
+          deprecated: true
           example: 3
           description: 'The number of tierUnitOfMeasure units that form the upper bound of the tier or band. For a tier with a discrete value (as opposed to a range of values e.g. 1 month) this must be the same as tierValueMinimum. Where this is the same as the tierValueMinimum value of the next-higher tier the referenced tier should be exclusive of this value. For example a term deposit of 2 months falls into the upper tier of the following tiers: (1 â€“ 2 months, 2 â€“ 3 months). If absent the tier''s range has no upper bound.'
           x-cds-type: Number
+        minimumValueString:
+          type: string
+          example: "1"
+          description: String representation of the lower bound of the tier
+        maximumValueString:
+          type: string
+          example: "3"
+          description: String representation of the upper bound of the tier
         rateApplicationMethod:
           type: string
           description: The method used to calculate the amount to be applied using one or more tiers. A single rate may be applied to the entire balance or each applicable tier rate is applied to the portion of the balance that falls into that tier (referred to as 'bands' or 'steps')
@@ -1110,7 +1296,13 @@ components:
             - PER_TIER
             - WHOLE_BALANCE
         applicabilityConditions:
+          deprecated: true
           $ref: '#/components/schemas/BankingProductRateCondition'
+        applicabilityConditionList:
+          type: array
+          description: Conditions for the applicability of the tiered rate
+          items:
+            $ref: '#/components/schemas/BankingProductRateCondition'
         additionalInfo:
           type: string
           example: additional info for tier
@@ -1124,6 +1316,25 @@ components:
     BankingProductRateCondition:
       type: object
       properties:
+        rateApplicabilityType:
+          type: string
+          description: The type of rate applicability condition described
+          enum:
+            - MIN_DEPOSITS
+            - MIN_DEPOSIT_AMOUNT
+            - DEPOSIT_BALANCE_INCREASED
+            - EXISTING_CUST
+            - NEW_ACCOUNTS
+            - NEW_CUSTOMER
+            - NEW_CUSTOMER_TO_GROUP
+            - ONLINE_ONLY
+            - OTHER
+            - MIN_PURCHASES
+            - MAX_WITHDRAWALS
+            - MAX_WITHDRAWAL_AMOUNT
+        additionalValue:
+          type: string
+          description: Generic field containing additional information relevant to the rate applicability condition
         additionalInfo:
           type: string
           example: additional info for rate condition
@@ -1144,7 +1355,7 @@ components:
         data:
           $ref: '#/components/schemas/ResponseBankingAccountList_data'
         links:
-          $ref: '#/components/schemas/LinksPaginated'
+          $ref: '#/components/schemas/BankingLinksPaginated'
         meta:
           $ref: '#/components/schemas/MetaPaginated'
     BankingAccount:
@@ -1217,7 +1428,7 @@ components:
         data:
           $ref: '#/components/schemas/BankingAccountDetail'
         links:
-          $ref: '#/components/schemas/Links'
+          $ref: '#/components/schemas/BankingLinks'
         meta:
           $ref: '#/components/schemas/Meta'
     BankingAccountDetail:
@@ -1288,6 +1499,11 @@ components:
               description: The addresses for the account to be used for correspondence
               items:
                 $ref: '#/components/schemas/CommonPhysicalAddress'
+            isInstalmentDetailAvailable:
+              type: boolean
+              description: True if any active or inactive instalment plans are available in the instalment plan endpoints. False if instalment plans are not applicable to the account
+            instalments:
+              $ref: '#/components/schemas/BankingProductInstalments'
           x-conditional:
             - termDeposit
             - creditCard
@@ -1301,8 +1517,7 @@ components:
           properties:
             isActivated:
               type: boolean
-              description: True if the feature is already activated and false if the feature is available for activation. Defaults to true if absent. (note this is an additional field appended to the feature object defined in the Product Reference payload)
-              default: true
+              description: True if the feature is already activated and false if the feature is available for activation. (note this is an additional field appended to the feature object defined in the Product Reference payload)
               example: true
               x-cds-type: Boolean
     BankingTermDepositAccount:
@@ -1448,12 +1663,45 @@ components:
           default: PRINCIPAL_AND_INTEREST
           enum:
             - INTEREST_ONLY
+            - OTHER
             - PRINCIPAL_AND_INTEREST
+            - UNCONSTRAINED
         repaymentFrequency:
           type: string
           example: P1M
           description: The expected or required repayment frequency. Formatted according to [ISO 8601 Durations](https://en.wikipedia.org/wiki/ISO_8601#Durations) (excludes recurrence syntax)
           x-cds-type: ExternalRef
+    BankingProductInstalments:
+      type: object
+      description: Details of instalment features on the account
+      required:
+        - minimumSplit
+        - maximumSplit
+      properties:
+        maximumConcurrentPlans:
+          type: integer
+          description: Maximum number of concurrent active instalment plans that may be created on the account. If absent there is no predetermined maximum number
+          x-cds-type: NaturalNumber
+        instalmentsLimit:
+          type: string
+          description: Maximum total value of transactions that may be converted to instalments
+          x-cds-type: AmountString
+        minimumPlanValue:
+          type: string
+          description: Minimum transaction value that can be converted into an instalment plan
+          x-cds-type: AmountString
+        maximumPlanValue:
+          type: string
+          description: Maximum transaction value that can be converted into an instalment plan
+          x-cds-type: AmountString
+        minimumSplit:
+          type: integer
+          description: Minimum number of instalments allowed
+          x-cds-type: PositiveInteger
+        maximumSplit:
+          type: integer
+          description: Maximum number of instalments allowed
+          x-cds-type: PositiveInteger
     ResponseBankingTransactionList:
       type: object
       required:
@@ -1464,7 +1712,7 @@ components:
         data:
           $ref: '#/components/schemas/ResponseBankingTransactionList_data'
         links:
-          $ref: '#/components/schemas/LinksPaginated'
+          $ref: '#/components/schemas/BankingLinksPaginated'
         meta:
           $ref: '#/components/schemas/MetaPaginated'
     BankingTransaction:
@@ -1583,7 +1831,7 @@ components:
         data:
           $ref: '#/components/schemas/BankingTransactionDetail'
         links:
-          $ref: '#/components/schemas/Links'
+          $ref: '#/components/schemas/BankingLinks'
         meta:
           $ref: '#/components/schemas/Meta'
     BankingTransactionDetail:
@@ -1605,7 +1853,7 @@ components:
         data:
           $ref: '#/components/schemas/ResponseBankingAccountsBalanceList_data'
         links:
-          $ref: '#/components/schemas/LinksPaginated'
+          $ref: '#/components/schemas/BankingLinksPaginated'
         meta:
           $ref: '#/components/schemas/MetaPaginated'
     ResponseBankingAccountsBalanceById:
@@ -1616,7 +1864,7 @@ components:
         data:
           $ref: '#/components/schemas/BankingBalance'
         links:
-          $ref: '#/components/schemas/Links'
+          $ref: '#/components/schemas/BankingLinks'
         meta:
           $ref: '#/components/schemas/Meta'
     BankingBalance:
@@ -1686,7 +1934,7 @@ components:
         data:
           $ref: '#/components/schemas/ResponseBankingPayeeList_data'
         links:
-          $ref: '#/components/schemas/LinksPaginated'
+          $ref: '#/components/schemas/BankingLinksPaginated'
         meta:
           $ref: '#/components/schemas/MetaPaginated'
     ResponseBankingPayeeById:
@@ -1698,7 +1946,7 @@ components:
         data:
           $ref: '#/components/schemas/BankingPayeeDetail'
         links:
-          $ref: '#/components/schemas/Links'
+          $ref: '#/components/schemas/BankingLinks'
         meta:
           $ref: '#/components/schemas/Meta'
     BankingPayee:
@@ -1905,7 +2153,7 @@ components:
         data:
           $ref: '#/components/schemas/ResponseBankingDirectDebitAuthorisationList_data'
         links:
-          $ref: '#/components/schemas/LinksPaginated'
+          $ref: '#/components/schemas/BankingLinksPaginated'
         meta:
           $ref: '#/components/schemas/MetaPaginated'
     BankingDirectDebit:
@@ -1964,7 +2212,7 @@ components:
         data:
           $ref: '#/components/schemas/ResponseBankingScheduledPaymentsList_data'
         links:
-          $ref: '#/components/schemas/LinksPaginated'
+          $ref: '#/components/schemas/BankingLinksPaginated'
         meta:
           $ref: '#/components/schemas/MetaPaginated'
     BankingScheduledPayment:
@@ -2241,7 +2489,7 @@ components:
         data:
           $ref: '#/components/schemas/ResponseCommonCustomer_data'
         links:
-          $ref: '#/components/schemas/Links'
+          $ref: '#/components/schemas/BankingLinks'
         meta:
           $ref: '#/components/schemas/Meta'
       x-conditional:
@@ -2256,7 +2504,7 @@ components:
         data:
           $ref: '#/components/schemas/ResponseCommonCustomerDetail_data'
         links:
-          $ref: '#/components/schemas/Links'
+          $ref: '#/components/schemas/BankingLinks'
         meta:
           $ref: '#/components/schemas/Meta'
       x-conditional:
@@ -2676,7 +2924,7 @@ components:
           description: State in which the address belongs. Valid enumeration defined by Australia Post PAF code file [State Type Abbreviation](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf). NSW, QLD, VIC, NT, WA, SA, TAS, ACT, AAT
           example: NSW
       description: Australian address formatted according to the file format defined by the [PAF file format](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf)
-    Links:
+    BankingLinks:
       type: object
       required:
         - self
@@ -2701,7 +2949,7 @@ components:
           example: 2144eaaa-0b5b-4a97-a131-f42f2084ee45
         debug:
           type: object
-          description: troubleshooting infor for CTS testing
+          description: troubleshooting for CTS testing
           example: {}
     LinksPaginated:
       type: object
@@ -2787,6 +3035,7 @@ components:
       example: LEASES
       enum:
         - BUSINESS_LOANS
+        - BUY_NOW_PAY_LATER
         - CRED_AND_CHRG_CARDS
         - LEASES
         - MARGIN_LOANS
