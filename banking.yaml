@@ -1428,7 +1428,7 @@ components:
         data:
           $ref: '#/components/schemas/BankingAccountDetail'
         links:
-          $ref: '#/components/schemas/BankingLinks'
+          $ref: '#/components/schemas/Links'
         meta:
           $ref: '#/components/schemas/Meta'
     BankingAccountDetail:
@@ -1831,7 +1831,7 @@ components:
         data:
           $ref: '#/components/schemas/BankingTransactionDetail'
         links:
-          $ref: '#/components/schemas/BankingLinks'
+          $ref: '#/components/schemas/Links'
         meta:
           $ref: '#/components/schemas/Meta'
     BankingTransactionDetail:
@@ -1864,7 +1864,7 @@ components:
         data:
           $ref: '#/components/schemas/BankingBalance'
         links:
-          $ref: '#/components/schemas/BankingLinks'
+          $ref: '#/components/schemas/Links'
         meta:
           $ref: '#/components/schemas/Meta'
     BankingBalance:
@@ -1946,7 +1946,7 @@ components:
         data:
           $ref: '#/components/schemas/BankingPayeeDetail'
         links:
-          $ref: '#/components/schemas/BankingLinks'
+          $ref: '#/components/schemas/Links'
         meta:
           $ref: '#/components/schemas/Meta'
     BankingPayee:
@@ -2489,7 +2489,7 @@ components:
         data:
           $ref: '#/components/schemas/ResponseCommonCustomer_data'
         links:
-          $ref: '#/components/schemas/BankingLinks'
+          $ref: '#/components/schemas/Links'
         meta:
           $ref: '#/components/schemas/Meta'
       x-conditional:
@@ -2504,7 +2504,7 @@ components:
         data:
           $ref: '#/components/schemas/ResponseCommonCustomerDetail_data'
         links:
-          $ref: '#/components/schemas/BankingLinks'
+          $ref: '#/components/schemas/Links'
         meta:
           $ref: '#/components/schemas/Meta'
       x-conditional:
@@ -2924,7 +2924,7 @@ components:
           description: State in which the address belongs. Valid enumeration defined by Australia Post PAF code file [State Type Abbreviation](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf). NSW, QLD, VIC, NT, WA, SA, TAS, ACT, AAT
           example: NSW
       description: Australian address formatted according to the file format defined by the [PAF file format](https://auspost.com.au/content/dam/auspost_corp/media/documents/australia-post-data-guide.pdf)
-    BankingLinks:
+    Links:
       type: object
       required:
         - self
