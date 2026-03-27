@@ -1355,7 +1355,7 @@ components:
         data:
           $ref: '#/components/schemas/ResponseBankingAccountList_data'
         links:
-          $ref: '#/components/schemas/BankingLinksPaginated'
+          $ref: '#/components/schemas/LinksPaginated'
         meta:
           $ref: '#/components/schemas/MetaPaginated'
     BankingAccount:
@@ -1712,7 +1712,7 @@ components:
         data:
           $ref: '#/components/schemas/ResponseBankingTransactionList_data'
         links:
-          $ref: '#/components/schemas/BankingLinksPaginated'
+          $ref: '#/components/schemas/LinksPaginated'
         meta:
           $ref: '#/components/schemas/MetaPaginated'
     BankingTransaction:
@@ -1853,7 +1853,7 @@ components:
         data:
           $ref: '#/components/schemas/ResponseBankingAccountsBalanceList_data'
         links:
-          $ref: '#/components/schemas/BankingLinksPaginated'
+          $ref: '#/components/schemas/LinksPaginated'
         meta:
           $ref: '#/components/schemas/MetaPaginated'
     ResponseBankingAccountsBalanceById:
@@ -1934,7 +1934,7 @@ components:
         data:
           $ref: '#/components/schemas/ResponseBankingPayeeList_data'
         links:
-          $ref: '#/components/schemas/BankingLinksPaginated'
+          $ref: '#/components/schemas/LinksPaginated'
         meta:
           $ref: '#/components/schemas/MetaPaginated'
     ResponseBankingPayeeById:
@@ -2153,7 +2153,7 @@ components:
         data:
           $ref: '#/components/schemas/ResponseBankingDirectDebitAuthorisationList_data'
         links:
-          $ref: '#/components/schemas/BankingLinksPaginated'
+          $ref: '#/components/schemas/LinksPaginated'
         meta:
           $ref: '#/components/schemas/MetaPaginated'
     BankingDirectDebit:
@@ -2212,7 +2212,7 @@ components:
         data:
           $ref: '#/components/schemas/ResponseBankingScheduledPaymentsList_data'
         links:
-          $ref: '#/components/schemas/BankingLinksPaginated'
+          $ref: '#/components/schemas/LinksPaginated'
         meta:
           $ref: '#/components/schemas/MetaPaginated'
     BankingScheduledPayment:
@@ -2951,7 +2951,7 @@ components:
           type: object
           description: troubleshooting for CTS testing
           example: {}
-    BankingLinksPaginated:
+    LinksPaginated:
       type: object
       required:
         - self
