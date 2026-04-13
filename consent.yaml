@@ -4,7 +4,7 @@ info:
   description: 'Consent Dashboard REST APIs. This allows ADR / consumers to perform CDR consumer authorization flow with Data Holders'
   contact:
     name: Adatree
-    email: engineering@adatree.com.au
+    email: support@adatree.com.au
   version: '1.4.3'
 servers:
   - url: 'https://cdr-insights-prod.api.adatree.com.au'
