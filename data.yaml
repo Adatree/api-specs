@@ -205,7 +205,7 @@ paths:
   /data/banking/products:
     get:
       security:
-        - bearerAuth: []
+        - bearerAuth: [ 'adr:banking:read' ]
       tags:
         - Banking
       summary: Get Banking Products
