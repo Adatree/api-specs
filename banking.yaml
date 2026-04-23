@@ -156,7 +156,7 @@ paths:
           - Execution date/time if available, then
           - A reasonable date/time nominated by the data holder using internal data structures
         - For transaction amounts it should be assumed that a negative value indicates a reduction of the available balance on the account while a positive value indicates an increase in the available balance on the account
-        - For aggregated transactions (ie. groups of sub transactions reported as a single entry for the account) only the aggregated information, with as much consistent information accross the subsidiary transactions as possible, is required to be shared
+        - For aggregated transactions (ie. groups of sub transactions reported as a single entry for the account) only the aggregated information, with as much consistent information across the subsidiary transactions as possible, is required to be shared
       operationId: getAccountTransactions
       parameters:
         - $ref: '#/components/parameters/RequestPathCdrArrangementId'
