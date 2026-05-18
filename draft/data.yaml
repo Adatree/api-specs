@@ -1436,6 +1436,7 @@ components:
       required:
         - feeType
         - name
+        - feeMethodUType
       properties:
         name:
           type: string

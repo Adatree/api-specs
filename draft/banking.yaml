@@ -1607,10 +1607,18 @@ components:
           type: string
           description: Minimum transaction value that can be converted into an instalment plan
           x-cds-type: AmountString
+        minimumPlanValueCurrency:
+          type: string
+          description: If absent assumes AUD
+          x-cds-type: CurrencyString
         maximumPlanValue:
           type: string
           description: Maximum transaction value that can be converted into an instalment plan
           x-cds-type: AmountString
+        maximumPlanValueCurrency:
+          type: string
+          description: If absent assumes AUD
+          x-cds-type: CurrencyString
         minimumSplit:
           type: integer
           description: Minimum number of instalments allowed
@@ -2997,6 +3005,38 @@ components:
           type: string
           description: Purpose of the payment.  Format is defined by NPP standards for the x2p1.01 overlay service
           example: payment-purpose-npp
+    NppPaymentService:
+      type: string
+      description: Identifier of the applicable overlay service. The service is used in conjunction with the serviceVersion.
+      enum:
+        - X2P1
+        - IFTI
+        - BSCT
+        - CATSCT
+      example: X2P1
+    BankingTransactionDetail_extendedData_nppPayload:
+      type: object
+      required:
+        - extendedDescription
+      properties:
+        extendedDescription:
+          type: string
+          description: An extended string description. Only present if specified by the extensionUType field `nppPayload`
+          example: extended description of a transaction
+        endToEndId:
+          type: string
+          description: An end to end ID for the payment created at initiation
+          example: end-to-endid-for-payment
+        purposeCode:
+          type: string
+          description: Purpose of the payment. Format is defined by the NPP standards for the NPP overlay services including Osko (X2P1)
+          example: payment-purpose-npp
+        service:
+          $ref: '#/components/schemas/NppPaymentService'
+        serviceVersion:
+          type: string
+          description: Two-digit NPP service overlay version with leading zero.
+          example: '03'
     BankingTransactionDetail_extendedData:
       required:
         - service
@@ -3012,14 +3052,17 @@ components:
         extensionUType:
           type: string
           description: Optional extended data provided specific to transaction originated via NPP
-          example: x2p101Payload
+          example: nppPayload
           enum:
             - x2p101Payload
+            - nppPayload
         x2p101Payload:
           $ref: '#/components/schemas/BankingTransactionDetail_extendedData_x2p101Payload'
+        nppPayload:
+          $ref: '#/components/schemas/BankingTransactionDetail_extendedData_nppPayload'
         service:
           type: string
-          description: 'Identifier of the applicable overlay service. Valid values are: X2P1.01'
+          description: 'Identifier of the applicable overlay service. Valid values are: X2P1.01.'
           example: X2P1.01
           enum:
             - X2P1.01
