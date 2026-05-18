@@ -2326,7 +2326,6 @@ components:
               items:
                 $ref: '#/components/schemas/BankingProductLendingRateV2'
             instalments:
-              description: Instalment options available for this lending product
               $ref: '#/components/schemas/BankingProductInstalments'
     BankingProductBundle:
       type: object
@@ -5982,10 +5981,12 @@ components:
             $ref: '#/components/schemas/EnergyPlanDetail_allOf_meteringCharges'
         gasContract:
           description: "v2: Updated Gas Contract details"
-          $ref: '#/components/schemas/EnergyPlanContractV2'
+          allOf:
+            - $ref: '#/components/schemas/EnergyPlanContractV2'
         electricityContract:
           description: "v2: Updated Electricity Contract details"
-          $ref: '#/components/schemas/EnergyPlanContractV2'
+          allOf:
+            - $ref: '#/components/schemas/EnergyPlanContractV2'
       required:
         - fuelType
       type: object
